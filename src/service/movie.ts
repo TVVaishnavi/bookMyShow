@@ -1,7 +1,6 @@
 import movie from '../models/movie';
 
 interface MovieData {
-    // Define the properties of movieData according to your model
     title: string;
     director: string;
     releaseYear: number;

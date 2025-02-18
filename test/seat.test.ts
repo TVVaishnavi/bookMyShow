@@ -40,10 +40,9 @@ describe('Seat Controller and Service Tests', () => {
 
       (Seat.findById as jest.Mock).mockResolvedValue(mockSeat);
 
-      // Fixed: Convert string IDs to ObjectId
       const result = await seatService.reserveSeat(
-        new mongoose.Types.ObjectId('seatId'), // ObjectId
-        new mongoose.Types.ObjectId('userId')  // ObjectId
+        new mongoose.Types.ObjectId('seatId'), 
+        new mongoose.Types.ObjectId('userId')  
       );
 
       expect(result.status).toBe('Reserved');

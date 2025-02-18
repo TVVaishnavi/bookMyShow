@@ -29,14 +29,12 @@ describe("Theatre Controller and Service Tests", () => {
   let mockTheatre:any;
 
   beforeAll(() => {
-    // Define mockTheatre here to avoid use before declaration error
     mockTheatre = {
       ...mockTheatreData,
       _id: "1",
       save: jest.fn().mockResolvedValue(mockTheatreData),
     };
-  
-    // Correctly mock the implementation of Theatre
+
     (Theatre as unknown as jest.Mock).mockImplementation(() => mockTheatre);
   });
 

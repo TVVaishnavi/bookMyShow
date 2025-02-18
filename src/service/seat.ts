@@ -1,4 +1,3 @@
-// services/seatService.ts
 import Seat, { ISeat } from '../models/seat';
 import mongoose from 'mongoose';
 

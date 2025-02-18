@@ -4,7 +4,6 @@ import authMiddleware from '../middleware/authentication';
 
 const router: Router = express.Router();
 
-// Routes
 router.get('/available', seatController.getAvailableSeats);
 router.post('/reserve', seatController.reserveSeat);
 router.post('/book', seatController.bookSeat);

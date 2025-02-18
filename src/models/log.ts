@@ -32,4 +32,5 @@ const handleErrorSchema: Schema<ErrorLog> = new Schema({
 
 const LogicModel = mongoose.model<LogicLog>("logs", logicSchema);
 const ErrorModel = mongoose.model<ErrorLog>("errorlog", handleErrorSchema);
-export default {LogicModel, ErrorModel}
+export {ErrorModel}
+export default LogicModel

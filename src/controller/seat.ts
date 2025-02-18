@@ -42,5 +42,6 @@ const bookSeat = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ message: (error as Error).message });
   }
 };
-
+const seatController = { getAvailableSeats, reserveSeat, bookSeat }
+export default seatController
 export { getAvailableSeats, reserveSeat, bookSeat };

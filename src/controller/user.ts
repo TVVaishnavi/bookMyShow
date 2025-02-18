@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { createUser, login, refreshToken, getUsers } from "../service/user"; 
 
-// Create a new user
 export const createUserController = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { email, ...userData } = req.body;

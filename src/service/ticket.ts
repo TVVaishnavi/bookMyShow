@@ -30,7 +30,7 @@ const cancelTicket = async (ticketId: string, userId: string): Promise<{
     if (ticket.status === 'Cancelled') throw new Error('Ticket is already cancelled');
 
     ticket.status = 'Cancelled';
-    ticket.paymentStatus = 'Refund Initiated'; // Make sure to update your Ticket model to accept this value
+    ticket.paymentStatus = 'Refund Initiated'; 
     await ticket.save();
     await Seat.updateMany({ _id: { $in: ticket.seats } }, { status: 'Available', bookedBy: null });
 
