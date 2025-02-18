@@ -1,89 +1,77 @@
-const mongoose = require("mongoose");
-const User = require("../src/model/user"); // Adjust the path as needed
-const { MongoMemoryServer } = require("mongodb-memory-server");
+const userService = require("../src/service/user");
+const User = require("../src/model/user");
+const jwtToken = require("../src/config/jwtToken");
+const bcrypt = require("bcrypt");
 
-let mongoServer;
+jest.mock("../src/model/user");
+jest.mock("../src/config/jwtToken");  // Mock jwtToken correctly
+jest.mock("bcrypt");
 
-beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-
-    // Mongoose connection options
-    const mongooseOpts = {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
+describe('User Service Tests', () => {
+  // Test for createUser function
+  test('should create a new user', async () => {
+    const mockUserData = {
+      name: "John Doe",
+      email: "john@example.com",
+      password: "password123",
     };
 
-    await mongoose.connect(uri, mongooseOpts);
-    console.log('Connected to in-memory database');
-});
+    // Mock bcrypt.hash to return a hashed password
+    bcrypt.hash.mockResolvedValue("hashedPassword");
 
-beforeEach(async () => {
-    // Clean up the database before each test
-    await User.deleteMany();
-    console.log('Cleaned up test data');
-});
+    // Mock the save method of the User model to return the user
+    User.prototype.save.mockResolvedValue(mockUserData);
 
-afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.disconnect();
-    await mongoServer.stop();
-    console.log('Closed database connection and stopped server');
-});
+    const user = await userService.createUser(mockUserData);
 
-describe("User Model Test", () => {
+    expect(user.name).toBe("John Doe");
+    expect(user.email).toBe("john@example.com");
+    expect(User.prototype.save).toHaveBeenCalledTimes(1);
+  });
 
-    it("should create & save a user successfully", async () => {
-        const userData = {
-            name: "John Doe",
-            email: "john@example.com",
-            password: "password123",
-            role: "customer",
-        };
+  // Test for login function
+  test('should login a user and return a token', async () => {
+    const mockUser = {
+      email: "john@example.com",
+      password: "hashedPassword",
+      role: "user",
+    };
 
-        const validUser = new User(userData);
-        const savedUser = await validUser.save();
+    // Mock bcrypt.compare to return true
+    bcrypt.compare.mockResolvedValue(true);
 
-        expect(savedUser._id).toBeDefined();
-        expect(savedUser.name).toBe(userData.name);
-        expect(savedUser.email).toBe(userData.email);
-        expect(savedUser.password).toBe(userData.password);
-        expect(savedUser.role).toBe(userData.role);
-    });
+    // Mock the User.findOne method to return the mock user
+    User.findOne.mockResolvedValue(mockUser);
 
-    it("should not save fields not defined in schema", async () => {
-        const userData = {
-            name: "John Doe",
-            email: "john@example.com",
-            password: "password123",
-            role: "customer",
-            nickname: "Johnny", // This field is not in schema
-        };
+    // Mock jwtToken.generateToken to return a token
+    jwtToken.generateToken.mockResolvedValue("mockToken");
 
-        const user = new User(userData);
-        const savedUser = await user.save();
+    const result = await userService.login(mockUser.email, "password123");
 
-        expect(savedUser._id).toBeDefined();
-        expect(savedUser.nickname).toBeUndefined();  // Mongoose should not save undefined fields
-    });
+    expect(result.token).toBe("mockToken");
+    expect(User.findOne).toHaveBeenCalledWith({ email: mockUser.email });
+  });
 
-    it("should fail to create a user without required fields", async () => {
-        const userData = { name: "John Doe" };  // Missing email and password
+  // Test for refreshToken function
+  test('should refresh the token successfully', async () => {
+    const oldToken = "mockOldToken";
+    const mockUser = {
+      _id: "user123",
+      email: "john@example.com",
+    };
 
-        let error;
-        try {
-            const user = new User(userData);
-            await user.save();
-        } catch (err) {
-            error = err;
-        }
+    // Mock jwtToken.verify to decode the token and return the user ID
+    jwtToken.verify = jest.fn().mockResolvedValue({ id: "user123" });  // Ensure verify is mocked like this
 
-        expect(error).toBeInstanceOf(mongoose.Error.ValidationError);
-        expect(error.errors.email).toBeDefined();
-        expect(error.errors.password).toBeDefined();
-    });
+    // Mock User.findById to return the mock user
+    User.findById.mockResolvedValue(mockUser);
 
+    // Mock jwtToken.generateToken to return a new token
+    jwtToken.generateToken.mockResolvedValue("newMockToken");
+
+    const result = await userService.refreshToken(oldToken);
+
+    expect(result).toBe("newMockToken");
+    expect(User.findById).toHaveBeenCalledWith("user123");
+  });
 });

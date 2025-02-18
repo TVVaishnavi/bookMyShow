@@ -1,124 +1,166 @@
-const mongoose = require('mongoose');
-const Movie = require('../src/model/movie'); // Adjust path to where your model is
-
-beforeAll(async () => {
-    const uri = 'mongodb://localhost/testdb'; // Use a test database URI (e.g., in-memory or local MongoDB)
-    await mongoose.connect(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
+const mongoose = require("mongoose")
+const {
+    createMovieController,
+    updateMovieController,
+    deleteMovieController,
+    getMovieByIdController,
+    getMoviesController,
+    searchMovies
+  } = require("../src/controller/movie");
+  
+  const { createMovie, updateMovie, deleteMovie, getMovieById, getMovies } = require("../src/service/movie");
+  // Mock the service methods
+  jest.mock("../src/service/movie")
+  
+  describe("Movie Controller", () => {
+    let req, res;
+  
+    beforeEach(() => {
+      // Mock the request and response objects
+      req = { params: {}, body: {}, query: {} };
+      res = { status: jest.fn().mockReturnThis(), json: jest.fn().mockReturnThis() };
     });
-});
-
-afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.disconnect();
-});
-
-describe('Movie Model Test', () => {
-    it('should create & save a movie successfully', async () => {
-        const movieData = {
-            title: 'Inception',
-            description: 'A mind-bending thriller about dreams within dreams.',
-            genre: 'Sci-Fi',
-            releaseDate: new Date('2010-07-16'),
-            director: 'Christopher Nolan',
-            cast: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt'],
-            rating: 8.8,
-            duration: 148,
-            language: 'English',
-        };
-
-        const movie = new Movie(movieData);
-        const savedMovie = await movie.save();
-
-        expect(savedMovie._id).toBeDefined();
-        expect(savedMovie.title).toBe(movieData.title);
-        expect(savedMovie.rating).toBe(movieData.rating);
-        expect(savedMovie.cast.length).toBeGreaterThan(0);
-        expect(savedMovie.createdAt).toBeDefined();
+  
+    afterEach(() => {
+      jest.clearAllMocks();
     });
-
-    it('should fail to create a movie without required fields', async () => {
-        const movieData = { title: 'No Description' }; // Missing required fields
-
-        let error;
-        try {
-            const movie = new Movie(movieData);
-            await movie.save();
-        } catch (err) {
-            error = err;
-        }
-
-        expect(error).toBeInstanceOf(mongoose.Error.ValidationError);
-        expect(error.errors.description).toBeDefined();
-        expect(error.errors.genre).toBeDefined();
-        expect(error.errors.releaseDate).toBeDefined();
-        expect(error.errors.director).toBeDefined();
-        expect(error.errors.language).toBeDefined();
+  
+    describe("createMovieController", () => {
+      it("should create a new movie successfully", async () => {
+        req.body = { title: "Movie Title", genre: "Action", director: "Director", description: "A great movie", releaseDate: "2025-02-20", duration: 120, language: "English" };
+        const newMovie = { ...req.body, _id: "123" };
+        createMovie.mockResolvedValue(newMovie); // Mock service success
+  
+        await createMovieController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith({ message: "movie created successfully", movie: newMovie });
+      });
+  
+      it("should return an error if movie creation fails", async () => {
+        const error = new Error("Error creating movie");
+        createMovie.mockRejectedValue(error); // Mock service failure
+  
+        await createMovieController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      });
     });
-
-    it('should fail to create a movie with invalid rating', async () => {
-        const movieData = {
-            title: 'Invalid Rating Movie',
-            description: 'Movie with invalid rating.',
-            genre: 'Drama',
-            releaseDate: new Date(),
-            director: 'Director Name',
-            cast: ['Actor One'],
-            rating: 12,  // Invalid rating (out of bounds)
-            duration: 120,
-            language: 'English',
-        };
-
-        const movie = new Movie(movieData);
-        let error;
-        try {
-            await movie.save();
-        } catch (err) {
-            error = err;
-        }
-
-        expect(error).toBeInstanceOf(mongoose.Error.ValidationError);
-        expect(error.errors.rating).toBeDefined();
+  
+    describe("updateMovieController", () => {
+      it("should update a movie successfully", async () => {
+        req.params.movieId = "123";
+        req.body = { title: "Updated Movie Title" };
+        const updatedMovie = { ...req.body, _id: "123" };
+        updateMovie.mockResolvedValue(updatedMovie); // Mock service success
+  
+        await updateMovieController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: "movie updated successfully", movie: updatedMovie });
+      });
+  
+      it("should return an error if movie update fails", async () => {
+        const error = new Error("Error updating movie");
+        updateMovie.mockRejectedValue(error); // Mock service failure
+  
+        await updateMovieController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      });
     });
-
-    it('should create a movie with default createdAt field', async () => {
-        const movieData = {
-            title: 'The Dark Knight',
-            description: 'Batman faces off against the Joker.',
-            genre: 'Action',
-            releaseDate: new Date('2008-07-18'),
-            director: 'Christopher Nolan',
-            cast: ['Christian Bale', 'Heath Ledger'],
-            rating: 9.0,
-            duration: 152,
-            language: 'English',
-        };
-
-        const movie = new Movie(movieData);
-        const savedMovie = await movie.save();
-
-        expect(savedMovie.createdAt).toBeDefined();
-        expect(savedMovie.createdAt).toBeInstanceOf(Date);
+  
+    describe("deleteMovieController", () => {
+      it("should delete a movie successfully", async () => {
+        req.params.movieId = "123";
+        deleteMovie.mockResolvedValue(); // Mock service success
+  
+        await deleteMovieController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: "Movie deleted successfully" });
+      });
+  
+      it("should return an error if movie deletion fails", async () => {
+        const error = new Error("Error deleting movie");
+        deleteMovie.mockRejectedValue(error); // Mock service failure
+  
+        await deleteMovieController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      });
     });
-
-    it('should handle empty cast array correctly', async () => {
-        const movieData = {
-            title: 'No Cast Movie',
-            description: 'A movie without a cast.',
-            genre: 'Documentary',
-            releaseDate: new Date(),
-            director: 'Anonymous',
-            cast: [],  // Empty cast array
-            rating: 5.0,
-            duration: 90,
-            language: 'English',
-        };
-
-        const movie = new Movie(movieData);
-        const savedMovie = await movie.save();
-
-        expect(savedMovie.cast).toBeDefined();
-        expect(savedMovie.cast.length).toBe(0);
+  
+    describe("getMovieByIdController", () => {
+      it("should return a movie by ID", async () => {
+        req.params.movieId = "123";
+        const movie = { _id: "123", title: "Movie Title" };
+        getMovieById.mockResolvedValue(movie); // Mock service success
+  
+        await getMovieByIdController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ movie });
+      });
+  
+      it("should return an error if movie fetch fails", async () => {
+        const error = new Error("Movie not found");
+        getMovieById.mockRejectedValue(error); // Mock service failure
+  
+        await getMovieByIdController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      });
     });
-});
+  
+    describe("getMoviesController", () => {
+      it("should return a list of movies", async () => {
+        req.query = { genre: "Action" };
+        const movies = [{ title: "Movie 1" }, { title: "Movie 2" }];
+        getMovies.mockResolvedValue(movies); // Mock service success
+  
+        await getMoviesController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ movies });
+      });
+  
+      it("should return an error if movies fetch fails", async () => {
+        const error = new Error("Error fetching movies");
+        getMovies.mockRejectedValue(error); // Mock service failure
+  
+        await getMoviesController(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      });
+    });
+  
+    describe("searchMovies", () => {
+      it("should return movies matching the search criteria", async () => {
+        req.query = { title: "Movie", genre: "Action" };
+        const movies = [{ title: "Movie 1", genre: "Action" }];
+        getMovies.mockResolvedValue(movies); // Mock service success
+  
+        await searchMovies(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ movies });
+      });
+  
+      it("should return an error if search fails", async () => {
+        const error = new Error("Error searching movies");
+        getMovies.mockRejectedValue(error); // Mock service failure
+  
+        await searchMovies(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: "Error searching movies" });
+      });
+    });
+  });
+  
