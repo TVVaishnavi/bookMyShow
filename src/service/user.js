@@ -25,7 +25,7 @@ const login = async (email, password) => {
 
 const refreshToken = async (oldToken) => {
   try {
-    const decoded = jwt.verify(oldToken, process.env.JWT_SECRET);
+    const decoded = jwt.verify(oldToken,jwtToken.secretKey);
     const user = await User.findById(decoded.id);
     if (!user) {
       throw new Error('User not found');

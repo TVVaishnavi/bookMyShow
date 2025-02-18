@@ -1,29 +1,30 @@
 const Seat = require('../model/seat')
 
-const getAvailableSeats = async(theatreId, getMovieById, showTime)=>{
+const getAvailableSeats = async(theatreId, movieId, showTime)=>{
     return await Seat.find({theatreId, movieId, showTime, status: 'Available'})
 }
 
-const reserveSeat = async(seatId, userId)=>{
-    const seat = await Seat.findById(seatId)
-    if(!seat || seat.status !=='Available'){
-        throw new Error('seat is not available')
+const reserveSeat = async (seatId, userId) => {
+    const seat = await Seat.findById(seatId);
+    if (!seat || seat.status !== 'Available') {
+        throw new Error('seat is not available');
     }
-    seat.status = 'Reserved'
-    seat.bookedBy = userId,
-    seat.reservedAt = new Date()
-    await seat.save()
-    return seat
-}
-const bookSeat = async(seatId, userId)=>{
-    const seat = await Seat.findById(seatId)
-    if(!seat || seat.status !== 'Reserved' || String(seat.bookedBy) !== String(userId) ){
-        throw new Error('seat is not reserved or unauthorized booking')
+    seat.status = 'Reserved';
+    seat.bookedBy = userId;
+    await seat.save();
+    return seat;
+};
+
+const bookSeat = async (seatId, userId) => {
+    const seat = await Seat.findById(seatId);
+    if (!seat || seat.status !== 'Reserved' || String(seat.bookedBy) !== String(userId)) {
+        throw new Error('seat is not reserved or unauthorized booking');
     }
-    seat.status = 'Booked'
-    await seat.save()
-    return seat
-}
+    seat.status = 'Booked';
+    await seat.save();
+    return seat;
+};
+
 
 async function releaseExpiredReservation() {
     try {

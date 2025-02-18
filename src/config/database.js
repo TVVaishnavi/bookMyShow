@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 require('dotenv').config();
-
-// Ensure that the MongoDB URI is correct
 const mongoUri = process.env.MONGODB_URI;
 
 mongoose.connect(mongoUri, {

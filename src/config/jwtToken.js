@@ -1,7 +1,5 @@
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken")
-
-const secretKey = process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
+const crypto = require("crypto")
+const secretKey = crypto.randomBytes(32).toString("hex")
 
 const generateToken = async (user) => {
   const payload = {
@@ -13,4 +11,4 @@ const generateToken = async (user) => {
   return token;
 };
 
-module.exports = { generateToken, secretKey }
+module.exports = { generateToken, secretKey };

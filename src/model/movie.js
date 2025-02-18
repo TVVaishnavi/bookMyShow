@@ -1,5 +1,5 @@
-const mongoose = require('../config/database')
-const Schema = mongoose.Schema
+const mongoose = require('../config/database');
+const Schema = mongoose.Schema;
 
 const movieSchema = new Schema({
   title: { type: String, required: true },
@@ -14,6 +14,6 @@ const movieSchema = new Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const Movie = mongoose.model('Movie', movieSchema)
+const Movie = mongoose.model('Movie', movieSchema);
 
 module.exports = Movie

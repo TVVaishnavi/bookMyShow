@@ -12,9 +12,10 @@ const createUser = async (req, res) => {
         return res.status(201).json({ message: "User created successfully", permission: true });
 
     } catch (error) {
-        console.error("Error creating user:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error creating user:", error.message, error.stack);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
     }
+    
 };
 
 const login = async (req, res) => {

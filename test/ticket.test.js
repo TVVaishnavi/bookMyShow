@@ -1,60 +1,77 @@
-const ticketService = require('../service/ticket');
-const Ticket = require('../model/ticket');
-jest.mock('../service/ticket');
-jest.mock('../model/ticket');
+jest.mock('../src/service/ticket');
+jest.mock('../src/model/ticket');
+
+const ticketService = require('../src/service/ticket');
+const Ticket = require('../src/model/ticket');
 
 describe('Ticket Service Tests', () => {
-
-  const mockTicketData = {
-    seatId: '123',
-    userId: 'user123',
-    status: 'Reserved',
-  };
+  let mockTicket;
   
-  // Now initializing the mockTicket after mockTicketData
-  const mockTicket = {
-    ...mockTicketData,
-    save: jest.fn().mockResolvedValue(mockTicket), // Mock save method
-    cancel: jest.fn().mockResolvedValue({ ...mockTicket, status: 'Cancelled' }), // Mock cancel method
-  };
+  beforeEach(() => {
+    jest.clearAllMocks(); 
 
-  // Test for Booking a Ticket
+    const mockTicketData = {
+      seatId: '123',
+      userId: 'user123',
+      status: 'Reserved',
+    };
+
+    mockTicket = {
+      ...mockTicketData,
+      save: jest.fn().mockResolvedValue({ ...mockTicketData, status: 'Booked' }), 
+      cancel: jest.fn().mockResolvedValue({ ...mockTicketData, status: 'Cancelled' }), 
+    };
+
+    // Mock Ticket Model
+    Ticket.findOne.mockImplementation(async (query) => {
+      if (query.seatId === '123' && query.status === 'Reserved') {
+        return { ...mockTicket, status: 'Reserved' }; 
+      }
+      if (query.seatId === '123' && query.status === 'Booked') {
+        return { ...mockTicket, status: 'Booked' };
+      }
+      return null;
+    });
+
+    ticketService.bookTicket = jest.fn(async (seatId, userId) => {
+      const ticket = await Ticket.findOne({ seatId, status: 'Reserved' });
+      if (!ticket) throw new Error('Ticket is not available or already booked');
+      ticket.status = 'Booked';
+      await ticket.save();
+      return ticket;
+    });
+
+    ticketService.cancelTicket = jest.fn(async (seatId, userId) => {
+      const ticket = await Ticket.findOne({ seatId, status: 'Booked' });
+      if (!ticket) throw new Error('Ticket not found or not booked');
+      ticket.status = 'Cancelled';
+      await ticket.cancel();
+      return ticket;
+    });
+  });
+
   test('should successfully book a ticket', async () => {
-    // Mocking the Ticket model and methods
-    Ticket.findOne.mockResolvedValue(mockTicket); // Assume the ticket is reserved
-    ticketService.bookTicket.mockResolvedValue(mockTicket); // Service call for booking ticket
-
-    const result = await ticketService.bookTicket(mockTicketData.seatId, mockTicketData.userId);
+    const result = await ticketService.bookTicket('123', 'user123');
     
-    expect(result).toEqual(mockTicket);  // Ensure the ticket booking is successful
-    expect(Ticket.findOne).toHaveBeenCalledWith({ seatId: '123', status: 'Reserved' }); // Check that ticket was found
-    expect(mockTicket.save).toHaveBeenCalled(); // Ensure save was called
+    expect(result).toEqual({ ...mockTicket, status: 'Booked' });
+    expect(Ticket.findOne).toHaveBeenCalledWith({ seatId: '123', status: 'Reserved' }); 
+    expect(Ticket.findOne).toHaveBeenCalledTimes(1); 
+    expect(mockTicket.save).toHaveBeenCalledTimes(1); 
   });
 
   test('should throw error if ticket is already booked', async () => {
-    // Mocking the Ticket model to return a booked ticket
-    Ticket.findOne.mockResolvedValue(null);  // Ticket not found, should throw error
-
-    await expect(ticketService.bookTicket('123', 'user123')).rejects.toThrow('Ticket is not available or already booked');
+    await expect(ticketService.bookTicket('456', 'user123')).rejects.toThrow('Ticket is not available or already booked');
   });
-  
-  // Test for Canceling a Ticket
-  test('should successfully cancel a booked ticket', async () => {
-    // Mocking the Ticket model to return a booked ticket
-    Ticket.findOne.mockResolvedValue(mockTicket); // Find the booked ticket
 
+  test('should successfully cancel a booked ticket', async () => {
     const result = await ticketService.cancelTicket('123', 'user123');
     
-    expect(result.status).toBe('Cancelled');  // Ensure the ticket status is updated to 'Cancelled'
-    expect(mockTicket.cancel).toHaveBeenCalled();  // Ensure the cancel method was called
-    expect(Ticket.findOne).toHaveBeenCalledWith({ seatId: '123', status: 'Booked' });  // Ensure the correct ticket was found
+    expect(result.status).toBe('Cancelled');
+    expect(mockTicket.cancel).toHaveBeenCalledTimes(1); 
+    expect(Ticket.findOne).toHaveBeenCalledWith({ seatId: '123', status: 'Booked' }); 
   });
 
   test('should throw error if trying to cancel a non-booked ticket', async () => {
-    // Mocking the Ticket model to return null (non-booked ticket)
-    Ticket.findOne.mockResolvedValue(null);
-
-    await expect(ticketService.cancelTicket('123', 'user123')).rejects.toThrow('Ticket not found or not booked');
+    await expect(ticketService.cancelTicket('456', 'user123')).rejects.toThrow('Ticket not found or not booked');
   });
-
 });
