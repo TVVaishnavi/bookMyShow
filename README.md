@@ -26,20 +26,26 @@ git clonehttps://github.com/TVVaishnavi/bookMyShow.git
 cdbookMyShow
 ```
 
-    2.  Install dependencies:bash
+    2.  Install dependencies:
+
+    bash
 
 ```
 npm install
 ```
 
-    3. Set up environment variables:bash
+    3. Set up environment variables:
+
+    bash
 
 ```
 cp.env.example .env
 # Update .env with your database credentials and other settings
 ```
 
-    4. Start the server:bash
+    4. Start the server:
+
+    bash
 
 ```
 npm start
