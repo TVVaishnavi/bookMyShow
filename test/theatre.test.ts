@@ -1,8 +1,8 @@
 import theatreService from "../src/service/theatre";
-import * as theatreController from "../src/controller/theatre";
+import { createTheatre } from "../src/controller/theatre"; // ✅ Import the actual controller function
 import Theatre from "../src/models/theatre";
 import mongoose from "mongoose";
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
 jest.mock("../src/service/theatre");
 jest.mock("../src/models/theatre");
@@ -26,12 +26,12 @@ describe("Theatre Controller and Service Tests", () => {
     amenities: ["Wifi", "Parking"],
   };
 
-  let mockTheatre:any;
+  let mockTheatre: any;
 
   beforeAll(() => {
     mockTheatre = {
       ...mockTheatreData,
-      _id: "1",
+      _id: new mongoose.Types.ObjectId(), // ✅ Ensure a valid ObjectId
       save: jest.fn().mockResolvedValue(mockTheatreData),
     };
 
@@ -40,7 +40,7 @@ describe("Theatre Controller and Service Tests", () => {
 
   describe("Theatre Service", () => {
     test("createTheatre should create a new theatre", async () => {
-      (theatreService.createTheatre as jest.Mock).mockResolvedValue(mockTheatre);
+      jest.spyOn(theatreService, "createTheatre").mockResolvedValue(mockTheatre); // ✅ Properly mocked
 
       const result = await theatreService.createTheatre(mockTheatreData);
       expect(result).toEqual(mockTheatre);
@@ -50,13 +50,13 @@ describe("Theatre Controller and Service Tests", () => {
 
   describe("Theatre Controller", () => {
     test("createTheatre should respond with success message and created theatre", async () => {
-      (theatreService.createTheatre as jest.Mock).mockResolvedValue(mockTheatre);
+      jest.spyOn(theatreService, "createTheatre").mockResolvedValue(mockTheatre); // ✅ Properly mocked
 
       const req = {
         body: mockTheatreData,
       } as Request;
 
-      await createTheatre(req, res as Response);
+      await createTheatre(req, res as Response); // ✅ Using the actual controller function
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
@@ -70,7 +70,3 @@ describe("Theatre Controller and Service Tests", () => {
     await mongoose.disconnect();
   });
 });
-function createTheatre(req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>, arg1: Response<any, Record<string, any>>) {
-    throw new Error("Function not implemented.");
-}
-

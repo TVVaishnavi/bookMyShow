@@ -1,27 +1,20 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import express, { Request, Response, NextFunction } from 'express';
+import { bookTicket, cancelTicket } from '../controller/ticket';
+const router = express.Router();
 
-interface ITicket extends Document {
-  userId: Schema.Types.ObjectId;
-  theatreId: Schema.Types.ObjectId;
-  movieId: Schema.Types.ObjectId;
-  showTime: Date;
-  seats: Schema.Types.ObjectId[];
-  totalPrice: number;
-  paymentStatus: 'Pending' | 'Paid';
-  status: 'Booked' | 'Cancelled';
-  createdAt: Date;
+// Define type for the request and response
+interface TicketRequest extends Request {
+  params: {
+    ticketId: string;
+  };
 }
 
-const ticketSchema: Schema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  theatreId: { type: mongoose.Schema.Types.ObjectId, ref: 'Theatre', required: true },
-  movieId: { type: mongoose.Schema.Types.ObjectId, ref: 'Movie', required: true },
-  showTime: { type: Date, required: true },
-  seats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seat', required: true }],
-  totalPrice: { type: Number, required: true },
-  paymentStatus: { type: String, enum:['Pending', 'Paid'], default:'Pending' },
-  status:{ type:String, enum:['Booked', 'Cancelled'], default:'Booked' },  
-  createdAt:{ type:Number , default : Date.now }
+router.post('/book', (req: Request, res: Response, next: NextFunction) => {
+  bookTicket(req, res, next);
 });
 
-export default mongoose.model<ITicket>('Ticket', ticketSchema);
+router.patch('/cancel/:ticketId', (req: TicketRequest, res: Response, next: NextFunction) => {
+  cancelTicket(req, res, next);
+});
+
+export default router;

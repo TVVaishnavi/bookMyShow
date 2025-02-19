@@ -39,3 +39,4 @@ const cancelTicket = async (ticketId: string, userId: string): Promise<{
 
 const ticketService = { bookTicket, cancelTicket };
 export default ticketService;
+export {bookTicket, cancelTicket};

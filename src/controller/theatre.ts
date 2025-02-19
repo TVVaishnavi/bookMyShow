@@ -67,3 +67,4 @@ const searchTheatres = async (req: Request, res: Response): Promise<void> => {
 
 const theatreController= { getAllTheatres, getTheatreById, updateTheatre, deleteTheatre, searchTheatres };
 export default {theatreController, createTheatre, getAllTheatres, getTheatreById, updateTheatre, deleteTheatre, searchTheatres};
+export {createTheatre}

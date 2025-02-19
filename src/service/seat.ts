@@ -11,15 +11,14 @@ const getAvailableSeats = async (theatreId: string, movieId: string,showTime: st
     return await Seat.find({ theatreId, movieId, showTime, status: 'Available' });
 };
 
-const reserveSeat = async (seatId: string, userId: mongoose.Types.ObjectId): Promise<ISeat> => {
+export const reserveSeat = async (seatId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId) => {
     const seat = await Seat.findById(seatId);
-    if (!seat || seat.status !== 'Available') {
-        throw new Error('Seat is not available');
-    }
+    if (!seat) throw new Error('Seat not found');
+  
     seat.status = 'Reserved';
     seat.bookedBy = userId;
-    seat.reservedAt = new Date();
     await seat.save();
+  
     return seat;
 };
 

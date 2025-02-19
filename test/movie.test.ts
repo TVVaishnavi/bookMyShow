@@ -24,11 +24,11 @@ describe("Movie Controller", () => {
   let res: Partial<Response>;
 
   beforeEach(() => {
-    req = { params: {}, body: {}, query: {} };
+    req = { params: {}, body: {}, query: {} } as Partial<Request>;
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
-    };
+      json: jest.fn(),
+    } as Partial<Response>; // Fixed semicolon issue here
   });
 
   afterEach(() => {
@@ -54,7 +54,7 @@ describe("Movie Controller", () => {
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
-        message: "movie created successfully",
+        message: "Movie created successfully",
         movie: newMovie,
       });
     });
@@ -82,7 +82,7 @@ describe("Movie Controller", () => {
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        message: "movie updated successfully",
+        message: "Movie updated successfully",
         movie: updatedMovie,
       });
     });
