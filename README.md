@@ -26,9 +26,9 @@ git clonehttps://github.com/TVVaishnavi/bookMyShow.git
 cdbookMyShow
 ```
 
-*  Install dependencies:
+* Install dependencies:
 
-    bash
+  bash
 
 ```
 npm install
@@ -36,16 +36,16 @@ npm install
 
 * Set up environment variables:
 
-    bash
+  bash
 
 ```
 cp.env.example .env
 # Update .env with your database credentials and other settings
 ```
 
-*  Start the server:
+* Start the server:
 
-    bash
+  bash
 
 ```
 npm start
@@ -65,7 +65,8 @@ To run the application:
 POST /api/signup
 ```
 
-    Login:bash
+*     Login:
+            bash
 
 ```
 POST /api/login
