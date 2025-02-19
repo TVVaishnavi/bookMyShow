@@ -1,8 +1,8 @@
 # bookMyShow (Backend)
 
-## Description 
+## Description
 
-This repository contains the backend for the BookMyShow application. The application is built using Express.js for the server, MongoDB for the database, and Jest for unit testing. Users can sign up and log in, browse movies and theatres, select seats, book tickets, and cancel bookings. Admins can directly log in to manage the system. 
+This repository contains the backend for the BookMyShow application. The application is built using Express.js for the server, MongoDB for the database, and Jest for unit testing. Users can sign up and log in, browse movies and theatres, select seats, book tickets, and cancel bookings. Admins can directly log in to manage the system.
 
 ## Features
 
@@ -14,32 +14,38 @@ This repository contains the backend for the BookMyShow application. The applica
 * There is a time limit for selecting seats. If the booking isn't completed within the time limit, the seat selection is undone.
 * **Ticket Cancellation** : Users can cancel their booked tickets.
 
-## Installation 
+## Installation
 
 To install and run this project locally:
 
-1. Clone the repository: 
-   bash
+* Clone the repository:
+  bash
 
 ```
 git clonehttps://github.com/TVVaishnavi/bookMyShow.git
 cdbookMyShow
 ```
 
-    2.  Install dependencies:bash
+*  Install dependencies:
+
+    bash
 
 ```
 npm install
 ```
 
-    3. Set up environment variables:bash
+*  Set up environment variables:
+
+    bash
 
 ```
 cp.env.example .env
 # Update .env with your database credentials and other settings
 ```
 
-    4. Start the server:bash
+*     Start the server:
+
+    bash
 
 ```
 npm start
@@ -52,14 +58,17 @@ To run the application:
 1. Ensure MongoDB is running.
 2. User Postman or any API client to interact with the backend.
 3. Example API requests:
-      signup:
-           bash
+
+   signup:
+         bash
 
 ```
 POST /api/signup
 ```
 
-    Login:bash
+*  Login:
+
+    bash
 
 ```
 POST /api/login
@@ -71,7 +80,6 @@ For support, you can reach out via:
 
 * Issue tracker: GitHub Issues
 * Email: vaishnavitvenkatesh@gmail.com
-
 
 ## Roadmap
 
@@ -92,8 +100,6 @@ For support, you can reach out via:
 
 * [X] Implement **Seat Auto-Unselect After Timeout**
 * [X] Write **Unit Tests with Jest**
-
-
 
 ## Contribution:
 
