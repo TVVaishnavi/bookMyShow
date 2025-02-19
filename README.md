@@ -18,15 +18,15 @@ This repository contains the backend for the BookMyShow application. The applica
 
 To install and run this project locally:
 
-1. Clone the repository:
-   bash
+* Clone the repository:
+  bash
 
 ```
 git clonehttps://github.com/TVVaishnavi/bookMyShow.git
 cdbookMyShow
 ```
 
-    2.  Install dependencies:
+*  Install dependencies:
 
     bash
 
@@ -34,7 +34,7 @@ cdbookMyShow
 npm install
 ```
 
-    3. Set up environment variables:
+* Set up environment variables:
 
     bash
 
@@ -43,7 +43,7 @@ cp.env.example .env
 # Update .env with your database credentials and other settings
 ```
 
-    4. Start the server:
+*  Start the server:
 
     bash
 
