@@ -1,16 +1,18 @@
 import User from "./models/user";
 import bcrypt from "bcrypt";
+import { ADMIN, PASSWORD } from "./constant"; 
 
 const createAdminAccount = async (): Promise<void> => {
-    const email: string | undefined = process.env.ADMIN_EMAIL;
+    const email: string | undefined = process.env[ADMIN.EMAIL_ENV]; 
+
     try {
         const existingAdmin = await User.findOne({ email });
         if (!existingAdmin) {
             const newAdmin = new User({
                 email,
-                name: "Admin",
-                password: await bcrypt.hash("admin", 10),
-                role: "admin"
+                name: ADMIN.NAME, 
+                password: await bcrypt.hash(ADMIN.DEFAULT_PASSWORD, PASSWORD.SALT_ROUNDS), 
+                role: ADMIN.ROLE 
             });
             await newAdmin.save();
             console.log("Admin account created successfully");

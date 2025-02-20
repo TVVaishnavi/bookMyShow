@@ -1,7 +1,5 @@
-import crypto from "crypto";
 import jwt from "jsonwebtoken";
-
-const secretKey: string = crypto.randomBytes(32).toString("hex");
+import { secretKey, tokenExpiration } from "../constant";
 
 interface User {
   _id: string;
@@ -16,9 +14,8 @@ const generateToken = async (user: User): Promise<string> => {
     role: user.role,
   };
 
-  const token = jwt.sign(payload, secretKey, { expiresIn: "24h" });
+  const token = jwt.sign(payload, secretKey, { expiresIn: tokenExpiration });
   return token;
 };
 
 export { generateToken, secretKey };
-

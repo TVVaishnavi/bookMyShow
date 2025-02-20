@@ -17,6 +17,8 @@ import {
   getMovies,
 } from "../src/service/movie";
 
+import { HTTP_CODE, MOVIE_RESPONSES } from "../src/constant";
+
 jest.mock("../src/service/movie");
 
 describe("Movie Controller", () => {
@@ -28,7 +30,7 @@ describe("Movie Controller", () => {
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
-    } as Partial<Response>; // Fixed semicolon issue here
+    } as Partial<Response>;
   });
 
   afterEach(() => {
@@ -36,7 +38,7 @@ describe("Movie Controller", () => {
   });
 
   describe("createMovieController", () => {
-    it("should create a new movie successfully", async () => {
+    it("should add a new entry successfully", async () => {
       req.body = {
         title: "Movie Title",
         genre: "Action",
@@ -52,26 +54,26 @@ describe("Movie Controller", () => {
 
       await createMovieController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.CREATED);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Movie created successfully",
-        movie: newMovie,
+        feedback: MOVIE_RESPONSES.CREATED,
+        details: newMovie,
       });
     });
 
-    it("should return an error if movie creation fails", async () => {
-      const error = new Error("Error creating movie");
-      (createMovie as jest.Mock).mockRejectedValue(error);
+    it("should return failure if addition is unsuccessful", async () => {
+      const failure = new Error(MOVIE_RESPONSES.FETCH_FAIL);
+      (createMovie as jest.Mock).mockRejectedValue(failure);
 
       await createMovieController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.FAILURE);
+      expect(res.json).toHaveBeenCalledWith({ feedback: failure.message });
     });
   });
 
   describe("updateMovieController", () => {
-    it("should update a movie successfully", async () => {
+    it("should modify an entry successfully", async () => {
       req.params = { movieId: "123" };
       req.body = { title: "Updated Movie Title" };
 
@@ -80,114 +82,114 @@ describe("Movie Controller", () => {
 
       await updateMovieController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.SUCCESS);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Movie updated successfully",
-        movie: updatedMovie,
+        feedback: MOVIE_RESPONSES.UPDATED,
+        details: updatedMovie,
       });
     });
 
-    it("should return an error if movie update fails", async () => {
-      const error = new Error("Error updating movie");
-      (updateMovie as jest.Mock).mockRejectedValue(error);
+    it("should return failure if modification is unsuccessful", async () => {
+      const failure = new Error(MOVIE_RESPONSES.FETCH_FAIL);
+      (updateMovie as jest.Mock).mockRejectedValue(failure);
 
       await updateMovieController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.FAILURE);
+      expect(res.json).toHaveBeenCalledWith({ feedback: failure.message });
     });
   });
 
   describe("deleteMovieController", () => {
-    it("should delete a movie successfully", async () => {
+    it("should erase an entry successfully", async () => {
       req.params = { movieId: "123" };
       (deleteMovie as jest.Mock).mockResolvedValue(null);
 
       await deleteMovieController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.SUCCESS);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Movie deleted successfully",
+        feedback: MOVIE_RESPONSES.REMOVED,
       });
     });
 
-    it("should return an error if movie deletion fails", async () => {
-      const error = new Error("Error deleting movie");
-      (deleteMovie as jest.Mock).mockRejectedValue(error);
+    it("should return failure if removal is unsuccessful", async () => {
+      const failure = new Error(MOVIE_RESPONSES.FETCH_FAIL);
+      (deleteMovie as jest.Mock).mockRejectedValue(failure);
 
       await deleteMovieController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.FAILURE);
+      expect(res.json).toHaveBeenCalledWith({ feedback: failure.message });
     });
   });
 
   describe("getMovieByIdController", () => {
-    it("should return a movie by ID", async () => {
+    it("should retrieve details by ID", async () => {
       req.params = { movieId: "123" };
       const movie = { _id: "123", title: "Movie Title" };
       (getMovieById as jest.Mock).mockResolvedValue(movie);
 
       await getMovieByIdController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ movie });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.SUCCESS);
+      expect(res.json).toHaveBeenCalledWith({ details: movie });
     });
 
-    it("should return an error if movie fetch fails", async () => {
-      const error = new Error("Movie not found");
-      (getMovieById as jest.Mock).mockRejectedValue(error);
+    it("should return failure if retrieval is unsuccessful", async () => {
+      const failure = new Error(MOVIE_RESPONSES.NOT_FOUND);
+      (getMovieById as jest.Mock).mockRejectedValue(failure);
 
       await getMovieByIdController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.FAILURE);
+      expect(res.json).toHaveBeenCalledWith({ feedback: failure.message });
     });
   });
 
   describe("getMoviesController", () => {
-    it("should return a list of movies", async () => {
+    it("should return a list of entries", async () => {
       req.query = { genre: "Action" };
       const movies = [{ title: "Movie 1" }, { title: "Movie 2" }];
       (getMovies as jest.Mock).mockResolvedValue(movies);
 
       await getMoviesController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ movies });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.SUCCESS);
+      expect(res.json).toHaveBeenCalledWith({ details: movies });
     });
 
-    it("should return an error if movies fetch fails", async () => {
-      const error = new Error("Error fetching movies");
-      (getMovies as jest.Mock).mockRejectedValue(error);
+    it("should return failure if retrieval is unsuccessful", async () => {
+      const failure = new Error(MOVIE_RESPONSES.FETCH_FAIL);
+      (getMovies as jest.Mock).mockRejectedValue(failure);
 
       await getMoviesController(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: error.message });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.FAILURE);
+      expect(res.json).toHaveBeenCalledWith({ feedback: failure.message });
     });
   });
 
   describe("searchMovies", () => {
-    it("should return movies matching the search criteria", async () => {
+    it("should return entries matching criteria", async () => {
       req.query = { title: "Movie", genre: "Action" };
       const movies = [{ title: "Movie 1", genre: "Action" }];
       (getMovies as jest.Mock).mockResolvedValue(movies);
 
       await searchMovies(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ movies });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.SUCCESS);
+      expect(res.json).toHaveBeenCalledWith({ details: movies });
     });
 
-    it("should return an error if search fails", async () => {
-      const error = new Error("Error searching movies");
-      (getMovies as jest.Mock).mockRejectedValue(error);
+    it("should return failure if search is unsuccessful", async () => {
+      const failure = new Error(MOVIE_RESPONSES.SEARCH_FAIL);
+      (getMovies as jest.Mock).mockRejectedValue(failure);
 
       await searchMovies(req as Request, res as Response);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: "Error searching movies" });
+      expect(res.status).toHaveBeenCalledWith(HTTP_CODE.FAILURE);
+      expect(res.json).toHaveBeenCalledWith({ feedback: MOVIE_RESPONSES.SEARCH_FAIL });
     });
   });
 });

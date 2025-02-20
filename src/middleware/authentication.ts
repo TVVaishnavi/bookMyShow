@@ -2,13 +2,14 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { secretKey } from "../config/jwtToken";
 import dotenv from "dotenv";
-import { CustomRequest } from "../controller/seat"; // Add this import
+import { CustomRequest } from "../controller/seat"; 
 import mongoose from "mongoose";
+import { AUTH_MESSAGES } from "../constant"; 
 
 dotenv.config();
 
 interface UserPayload extends JwtPayload {
-  id: mongoose.Types.ObjectId; // Change id type to mongoose.Types.ObjectId
+  id: mongoose.Types.ObjectId; 
   email: string;
   role: string;
 }
@@ -16,19 +17,19 @@ interface UserPayload extends JwtPayload {
 const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.header("Authorization");
   if (!authHeader) {
-    res.status(401).json({ message: "Unauthorized: Missing Token" });
+    res.status(401).json({ message: AUTH_MESSAGES.MISSING_TOKEN });
     return;
   }
   const [bearer, token] = authHeader.split(" ");
   if (bearer !== "Bearer" || !token) {
-    res.status(401).json({ message: "Unauthorized: Invalid token format" });
+    res.status(401).json({ message: AUTH_MESSAGES.INVALID_FORMAT });
     return;
   }
   jwt.verify(token, secretKey, (err, user) => {
     if (err || !user) {
-      return res.status(403).json({ message: "Forbidden: Invalid token" });
+      return res.status(403).json({ message: AUTH_MESSAGES.FORBIDDEN });
     }
-    (req as unknown as CustomRequest).user = user as UserPayload; // Cast req to CustomRequest
+    (req as unknown as CustomRequest).user = user as UserPayload; 
     next();
   });
 };
@@ -37,7 +38,7 @@ const verifyToken = (token: string): JwtPayload | string => {
   try {
     return jwt.verify(token, secretKey);
   } catch (err) {
-    throw new Error("Invalid token");
+    throw new Error(AUTH_MESSAGES.INVALID_TOKEN);
   }
 };
 

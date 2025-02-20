@@ -1,28 +1,24 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { MONGODB } from "../constant";
 
 dotenv.config();
 
-const mongoUri: string | undefined = process.env.MONGODB_URI;
-
-if (!mongoUri) {
-    throw new Error("Missing MONGODB_URI in environment variables");
+if (!MONGODB.URI) {
+  throw new Error(MONGODB.MESSAGES.MISSING_URI);
 }
 
 mongoose
-  .connect(mongoUri, {
-    tls: true,
-    serverSelectionTimeoutMS: 5000,
-  })
+  .connect(MONGODB.URI, MONGODB.OPTIONS)
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log(MONGODB.MESSAGES.CONNECTED);
   })
   .catch((err) => {
-    console.error(`MongoDB connection error: ${err}`);
+    console.error(`${MONGODB.MESSAGES.ERROR} ${err}`);
   });
 
 mongoose.connection.on("error", (err) => {
-  console.error(`MongoDB connection error: ${err}`);
+  console.error(`${MONGODB.MESSAGES.ERROR} ${err}`);
 });
 
 export default mongoose;

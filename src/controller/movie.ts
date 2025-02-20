@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import { createMovie, updateMovie, deleteMovie, getMovieById, getMovies } from "../service/movie";
+import { MOVIE_MESSAGES, MOVIE_QUERY_KEYS } from "../constant";
 
 const createMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
         const newMovie = await createMovie(req.body);
-        res.status(201).json({ message: "Movie created successfully", movie: newMovie });
+        res.status(201).json({ message: MOVIE_MESSAGES.CREATED, movie: newMovie });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
@@ -13,7 +14,7 @@ const createMovieController = async (req: Request, res: Response): Promise<void>
 const updateMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
         const updatedMovie = await updateMovie(req.params.movieId, req.body);
-        res.status(200).json({ message: "Movie updated successfully", movie: updatedMovie });
+        res.status(200).json({ message: MOVIE_MESSAGES.UPDATED, movie: updatedMovie });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
@@ -22,7 +23,7 @@ const updateMovieController = async (req: Request, res: Response): Promise<void>
 const deleteMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
         await deleteMovie(req.params.movieId);
-        res.status(200).json({ message: "Movie deleted successfully" });
+        res.status(200).json({ message: MOVIE_MESSAGES.DELETED });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
@@ -31,15 +32,16 @@ const deleteMovieController = async (req: Request, res: Response): Promise<void>
 const searchMovies = async (req: Request, res: Response): Promise<void> => {
     try {
         const filter: Record<string, any> = {};
-        if (req.query.title) filter.title = { $regex: req.query.title, $options: 'i' };
-        if (req.query.genre) filter.genre = { $regex: req.query.genre, $options: 'i' };
-        if (req.query.director) filter.director = { $regex: req.query.director, $options: 'i' };
-        if (req.query.language) filter.language = { $regex: req.query.language, $options: 'i' };
+        MOVIE_QUERY_KEYS.forEach((key) => {
+            if (req.query[key]) {
+                filter[key] = { $regex: req.query[key], $options: "i" };
+            }
+        });
 
         const movies = await getMovies(filter);
         res.status(200).json({ movies });
     } catch (error) {
-        res.status(500).json({ message: "Error searching movies" });
+        res.status(500).json({ message: MOVIE_MESSAGES.SEARCH_ERROR });
     }
 };
 

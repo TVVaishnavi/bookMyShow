@@ -5,7 +5,7 @@ interface IContact {
   email: string;
 }
 
-interface ITheatre extends Document {
+export interface ITheatre extends Document {
   name: string;
   location: string;
   seatingCapacity: number;
@@ -57,4 +57,4 @@ const theatreSchema: Schema<ITheatre> = new Schema(
 
 const Theatre = mongoose.model<ITheatre>('Theatre', theatreSchema);
 
-export default Theatre;
+export default Theatre; 

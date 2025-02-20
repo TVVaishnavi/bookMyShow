@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
-import seatService from '../service/seat';
-import mongoose from 'mongoose';
+import { Request, Response } from "express";
+import seatService from "../service/seat";
+import mongoose from "mongoose";
+import { SEAT_MESSAGES } from "../constant";
 
 export interface CustomRequest extends Request {
   query: { theatreId: string; movieId: string; showTime: string };
@@ -9,7 +10,11 @@ export interface CustomRequest extends Request {
 
 const getAvailableSeats = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { theatreId, movieId, showTime } = req.query as { theatreId: string; movieId: string; showTime: string };
+    const { theatreId, movieId, showTime } = req.query as {
+      theatreId: string;
+      movieId: string;
+      showTime: string;
+    };
     const seats = await seatService.getAvailableSeats(theatreId, movieId, showTime);
     res.status(200).json({ seats });
   } catch (error) {
@@ -21,13 +26,13 @@ const reserveSeat = async (req: Request, res: Response): Promise<void> => {
   try {
     const { seatId } = req.body as { seatId: string };
     const userId = (req as CustomRequest).user?.id;
-    if (!userId) throw new Error('Unauthorized');
-    
+    if (!userId) throw new Error(SEAT_MESSAGES.UNAUTHORIZED);
+
     const seat = await seatService.reserveSeat(
       new mongoose.Types.ObjectId(seatId),
       new mongoose.Types.ObjectId(userId)
     );
-    res.status(200).json({ message: 'Seat reserved', seat });
+    res.status(200).json({ message: SEAT_MESSAGES.RESERVED, seat });
   } catch (error) {
     res.status(400).json({ message: (error as Error).message });
   }
@@ -37,14 +42,15 @@ const bookSeat = async (req: Request, res: Response): Promise<void> => {
   try {
     const { seatId } = req.body as { seatId: string };
     const userId = (req as CustomRequest).user?.id;
-    if (!userId) throw new Error('Unauthorized');
+    if (!userId) throw new Error(SEAT_MESSAGES.UNAUTHORIZED);
 
     const seat = await seatService.bookSeat(seatId, userId);
-    res.status(200).json({ message: 'Seat booked successfully', seat });
+    res.status(200).json({ message: SEAT_MESSAGES.BOOKED, seat });
   } catch (error) {
     res.status(400).json({ message: (error as Error).message });
   }
 };
-const seatController = { getAvailableSeats, reserveSeat, bookSeat }
-export default seatController
+
+const seatController = { getAvailableSeats, reserveSeat, bookSeat };
+export default seatController;
 export { getAvailableSeats, reserveSeat, bookSeat };

@@ -1,11 +1,12 @@
 import express from "express";
-import mongoose from "../src/config/database"; 
-const app = express();
-const PORT = process.env.PORT || 3000;
+import mongoose from "../src/config/database";
+import { PORT, API_ROUTES, MONGO_MESSAGES } from "../src/constant";
 import userRoute from "../src/routes/user";
 import movieRoute from "../src/routes/movie";
 import theatreRoute from "../src/routes/theatre";
 import startSeatReleaseJob from "../src/releaseSeat";
+
+const app = express();
 
 app.use(express.json());
 
@@ -13,20 +14,19 @@ app.get("/", (req, res) => {
   res.send("Hello, TypeScript Server with MongoDB!");
 });
 
-app.use('/', userRoute);
-app.use('/api', movieRoute);
-app.use('/api/theatre', theatreRoute);
+app.use(API_ROUTES.USER, userRoute);
+app.use(API_ROUTES.MOVIE, movieRoute);
+app.use(API_ROUTES.THEATRE, theatreRoute);
 
 startSeatReleaseJob();
+
 mongoose.connection.once("open", () => {
-  console.log("MongoDB connection is open. Starting server...");
+  console.log(MONGO_MESSAGES.CONNECTED);
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
   });
 });
 
 mongoose.connection.on("error", (err) => {
-  console.error(`MongoDB connection error: ${err}`);
+  console.error(`${MONGO_MESSAGES.ERROR} ${err}`);
 });
-
-
