@@ -1,20 +1,26 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { bookTicket, cancelTicket } from '../controller/ticket';
+import { RequestHandler } from 'express';
+
 const router = express.Router();
 
-// Define type for the request and response
-interface TicketRequest extends Request {
-  params: {
-    ticketId: string;
-  };
-}
+const bookTicketHandler: RequestHandler = async (req, res, next) => {
+  try {
+    await bookTicket(req, res);
+  } catch (error) {
+    next(error);
+  }
+};
 
-router.post('/book', (req: Request, res: Response, next: NextFunction) => {
-  bookTicket(req, res, next);
-});
+const cancelTicketHandler: RequestHandler = async (req, res, next) => {
+  try {
+    await cancelTicket(req, res);
+  } catch (error) {
+    next(error);
+  }
+};
 
-router.patch('/cancel/:ticketId', (req: TicketRequest, res: Response, next: NextFunction) => {
-  cancelTicket(req, res, next);
-});
+router.post('/book', bookTicketHandler);
+router.patch('/cancel/:ticketId', cancelTicketHandler);
 
 export default router;

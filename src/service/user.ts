@@ -2,7 +2,7 @@ import { User, IUser } from "../models/user";
 import bcrypt from "bcrypt";
 import { generateToken, secretKey } from "../config/jwtToken";
 import jwt from "jsonwebtoken";
-import { SALT_ROUNDS, AUTH, ERRORS, ACCESS } from "../constant";
+import { SALT_ROUNDS, ERRORS, ACCESS } from "../constant";
 import { CreateUserDto, LoginUserDto, RefreshTokenDto, GetUserDto } from "../DTO/user.dto";
 
 const createUser = async (userDto: CreateUserDto): Promise<IUser> => {
@@ -45,6 +45,7 @@ const refreshToken = async (tokenDto: RefreshTokenDto): Promise<string> => {
     }
     return generateToken(user);
   } catch (error) {
+    console.log(error)
     throw new Error(ERRORS.INVALID_TOKEN);
   }
 };

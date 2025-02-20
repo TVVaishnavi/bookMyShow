@@ -1,8 +1,8 @@
 import Theatre, { ITheatre } from "../models/theatre";
-import { THEATRE, MONGO_OPTIONS, SEARCH_FIELDS } from "../constant"; 
-import { Document, Model, HydratedDocument } from "mongoose";
+import { THEATRE,SEARCH_FIELDS } from "../constant"; 
+import { HydratedDocument } from "mongoose";
 import { plainToInstance } from "class-transformer";
-import { validate, Validate } from "class-validator";
+import { validate} from "class-validator";
 import { CreateTheatreDTO, UpdateTheatreDTO } from "../DTO/theatre.dto";
 
 const createTheatre = async(theatreData: CreateTheatreDTO): Promise<HydratedDocument<ITheatre>>=>{
@@ -57,6 +57,7 @@ const searchTheatres = async (searchQuery: string): Promise<HydratedDocument<ITh
       $or: SEARCH_FIELDS.map(field => ({ [field]: { $regex: searchQuery, $options: "i" } })),
     }).exec();
   } catch (error) {
+    console.log(error)
     throw new Error(THEATRE.SEARCH_ERROR);
   }
 };

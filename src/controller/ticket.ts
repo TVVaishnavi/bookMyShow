@@ -14,7 +14,7 @@ interface CustomRequest extends Request {
 export const bookTicket = async (req: CustomRequest, res: Response): Promise<Response> => {
   try {
     if (!req.user) {
-      return res.status(400).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
+      return res.status(401).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
     }
 
     const dto = plainToInstance(BookTicketDTO, req.body);
@@ -23,17 +23,24 @@ export const bookTicket = async (req: CustomRequest, res: Response): Promise<Res
       return res.status(400).json({ errors });
     }
 
-    await bookTicketService(req.user.id, dto.theatreId, dto.movieId, dto.showTime, dto.seatIds);
+    await bookTicketService({
+      userId: req.user.id,
+      theatreId: dto.theatreId,
+      movieId: dto.movieId,
+      showTime: dto.showTime,
+      seatIds: dto.seatIds,
+    });
+
     return res.status(201).json({ message: TICKET_MESSAGES.BOOKED });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+  } catch (error: unknown) {
+    return res.status(500).json({ message: (error as Error).message || "Internal Server Error" });
   }
 };
 
 export const cancelTicket = async (req: CustomRequest, res: Response): Promise<Response> => {
   try {
     if (!req.user) {
-      return res.status(400).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
+      return res.status(401).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
     }
 
     const dto = plainToInstance(CancelTicketDTO, req.params);
@@ -42,10 +49,11 @@ export const cancelTicket = async (req: CustomRequest, res: Response): Promise<R
       return res.status(400).json({ errors });
     }
 
-    const response = await cancelTicketService(dto.ticketId, req.user.id);
+    const response = await cancelTicketService({ ticketId: dto.ticketId, userId: req.user.id });
+
     return res.status(200).json(response);
-  } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+  } catch (error: unknown) {
+    return res.status(500).json({ message: (error as Error).message || "Internal Server Error" });
   }
 };
 

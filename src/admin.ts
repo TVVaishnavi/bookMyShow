@@ -1,9 +1,11 @@
 import User from "./models/user";
 import bcrypt from "bcrypt";
 import { ADMIN, PASSWORD } from "./constant"; 
+import dotenv from "dotenv";
+dotenv.config();
 
 const createAdminAccount = async (): Promise<void> => {
-    const email: string | undefined = process.env[ADMIN.EMAIL_ENV]; 
+    const email: string | undefined = process.env["ADMIN_EMAIL"]; 
 
     try {
         const existingAdmin = await User.findOne({ email });

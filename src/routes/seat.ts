@@ -1,11 +1,11 @@
 import express, { Router } from 'express';
-import seatController from '../controller/seat';
-import authMiddleware from '../middleware/authentication';
+import { getAvailableSeats, reserveSeat, bookSeat } from '../controller/seat';
+
 
 const router: Router = express.Router();
 
-router.get('/available', seatController.getAvailableSeats);
-router.post('/reserve', seatController.reserveSeat);
-router.post('/book', seatController.bookSeat);
+router.get('/available', getAvailableSeats);
+router.post('/reserve', reserveSeat);
+router.post('/book', bookSeat);
 
 export default router;

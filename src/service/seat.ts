@@ -1,12 +1,11 @@
 import Seat, { ISeat } from '../models/seat';
 import mongoose from 'mongoose';
 import { SEAT_STATUS, SEAT, RESERVATION_EXPIRATION } from '../constant';
-import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator'; 
 import { GetAvailableSeatsDTO, ReserveSeatDTO, BookSeatDTO} from '../DTO/seat.dto';
 
 
-const getAvailableSeats = async (dto: GetAvailableSeatsDTO): Promise<ISeat[]>=>{
+const getAvailableSeats = async (theatreId: string, movieId: string, showTime: string, dto: GetAvailableSeatsDTO): Promise<ISeat[]>=>{
     const errors = await validate(dto);
     if (errors.length>0) throw new Error(JSON.stringify(errors));
     return await Seat.find({
@@ -17,7 +16,7 @@ const getAvailableSeats = async (dto: GetAvailableSeatsDTO): Promise<ISeat[]>=>{
     });
 };
 
-export const reserveSeat = async (dto: ReserveSeatDTO)=>{
+export const reserveSeat = async (p0: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId, dto: ReserveSeatDTO)=>{
     const errors = await validate(dto);
     if(errors.length>0) throw new Error(JSON.stringify(errors));
 
@@ -29,7 +28,7 @@ export const reserveSeat = async (dto: ReserveSeatDTO)=>{
     return seat;
 };
 
-const bookSeat = async (dto: BookSeatDTO): Promise<ISeat>=>{
+const bookSeat = async (p0: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId, dto: BookSeatDTO): Promise<ISeat>=>{
     const errors = await validate(dto);
     if(errors.length>0) throw new Error(JSON.stringify(errors));
     const seat = await Seat.findById(dto.seatId);

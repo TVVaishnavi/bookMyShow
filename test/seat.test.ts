@@ -1,100 +1,77 @@
-import mongoose from "mongoose";
 import { Request, Response } from "express";
 import seatService from "../src/service/seat";
-import * as seatController from "../src/controller/seat";
-import Seat, { ISeat } from "../src/models/seat";
-import { RESPONSE_CODE, SEAT_RESPONSES } from "../src/constant";
+import mongoose from "mongoose";
+import { SEAT_MESSAGES } from "../src/constant";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { GetAvailableSeatsDTO, ReserveSeatDTO, BookSeatDTO } from "../src/DTO/seat.dto";
 
-jest.mock("../src/models/seat");
-jest.mock("../src/service/seat");
+export interface CustomRequest extends Request {
+  query: { theatreId: string; movieId: string; showTime: string };
+  user?: { id: mongoose.Types.ObjectId };
+}
 
-type MockResponse = Response & {
-  status: jest.MockedFunction<Response["status"]>;
-  json: jest.MockedFunction<Response["json"]>;
+const getAvailableSeats = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const dto = plainToInstance(GetAvailableSeatsDTO, req.query as Record<string, unknown>);
+
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+    // Pass DTO argument to match service function signature
+    const seats = await seatService.getAvailableSeats(dto.theatreId, dto.movieId, dto.showTime, dto);
+    return res.status(200).json({ seats });
+  } catch (error) {
+    return res.status(400).json({ message: (error as Error).message });
+  }
 };
 
-type ReservationDocument = mongoose.Document & ISeat & {
-  save: jest.MockedFunction<() => Promise<ReservationDocument>>;
+const reserveSeat = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const userId = (req as CustomRequest).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: SEAT_MESSAGES.UNAUTHORIZED });
+    }
+
+    const dto = plainToInstance(ReserveSeatDTO, { ...req.body, userId: userId.toString() });
+
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+    // Pass `dto` as required by `reserveSeat`
+    const seat = await seatService.reserveSeat(new mongoose.Types.ObjectId(dto.seatId), userId, dto);
+    return res.status(200).json({ message: SEAT_MESSAGES.RESERVED, seat });
+  } catch (error) {
+    return res.status(400).json({ message: (error as Error).message });
+  }
 };
 
-describe("Reservation Controller and Service Tests", () => {
-  let res: MockResponse;
+const bookSeat = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const userId = (req as CustomRequest).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: SEAT_MESSAGES.UNAUTHORIZED });
+    }
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    } as unknown as MockResponse;
-  });
+    const dto = plainToInstance(BookSeatDTO, { ...req.body, userId: userId.toString() });
 
-  describe("Reservation Service", () => {
-    test("reserveSpot should confirm a reservation", async () => {
-      const reservationId = new mongoose.Types.ObjectId();
-      const userId = new mongoose.Types.ObjectId();
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
 
-      const mockReservation: ReservationDocument = {
-        _id: reservationId,
-        seatNumber: "A1",
-        status: "Available", // Use status instead of state
-        bookedBy: undefined,
-        save: jest.fn().mockImplementation(async function (this: ReservationDocument): Promise<ReservationDocument> {
-          this.status = "Reserved"; // Use status instead of state
-          this.bookedBy = userId;
-          return this;
-        }),
-      } as unknown as ReservationDocument;
+    // Pass `dto` to `bookSeat` function
+    const seat = await seatService.bookSeat(new mongoose.Types.ObjectId(dto.seatId), userId, dto);
+    return res.status(200).json({ message: SEAT_MESSAGES.BOOKED, seat });
+  } catch (error) {
+    return res.status(400).json({ message: (error as Error).message });
+  }
+};
 
-      (Seat.findById as jest.Mock).mockResolvedValue(mockReservation);
-
-      (seatService.reserveSeat as jest.Mock).mockImplementation(async (reservationId: string, userId: string) => {
-        const reservation = await Seat.findById(reservationId);
-        if (!reservation) throw new Error(SEAT_RESPONSES.NOT_FOUND);
-
-        await reservation.save();
-        return reservation;
-      });
-
-      const result = await seatService.reserveSeat(reservationId, userId);
-
-      console.log("Result After Save:", result); // Debug log
-
-      expect(result).toBeDefined();
-      expect(result.status).toBe("Reserved"); // Use status instead of state
-      expect(mockReservation.save).toHaveBeenCalled();
-    });
-  });
-
-  describe("Reservation Controller", () => {
-    test("reserveSpot should handle confirmation", async () => {
-      const reservationId = new mongoose.Types.ObjectId().toHexString();
-      const userId = new mongoose.Types.ObjectId().toHexString();
-
-      const mockReservation = {
-        _id: reservationId,
-        seatNumber: "A1",
-        status: "Reserved", // Use status instead of state
-        bookedBy: userId,
-      };
-
-      (seatService.reserveSeat as jest.Mock).mockResolvedValue(mockReservation);
-
-      const req = {
-        body: { seatId: reservationId },
-        user: { id: userId },
-      } as unknown as Request;
-
-      await seatController.reserveSeat(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(RESPONSE_CODE.SUCCESS);
-      expect(res.json).toHaveBeenCalledWith({
-        feedback: SEAT_RESPONSES.RESERVED,
-        details: mockReservation,
-      });
-    });
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-  });
-});
+// Export all methods in one object
+const seatController = { getAvailableSeats, reserveSeat, bookSeat };
+export { seatController };

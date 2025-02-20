@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router } from 'express';
 import {
   createMovieController,
   updateMovieController,
@@ -12,11 +12,12 @@ import authMiddleware from '../middleware/authentication';
 const router: Router = express.Router();
 
 
-router.post('/create', authMiddleware.authenticateToken, (req: Request, res: Response) => createMovieController(req, res)); 
-router.put('/:movieId', authMiddleware.authenticateToken, (req: Request<{ movieId: string }>, res: Response) => updateMovieController(req, res)); 
-router.delete('/:movieId', authMiddleware.authenticateToken, (req: Request<{ movieId: string }>, res: Response) => deleteMovieController(req, res)); 
-router.get('/search', (req: Request, res: Response) => searchMovies(req, res)); 
-router.get('/:movieId', (req: Request<{ movieId: string }>, res: Response) => getMovieByIdController(req, res));
-router.get('/', (req: Request, res: Response) => getMoviesController(req, res)); 
+router.post('/create', authMiddleware.authenticateToken, createMovieController);
+router.put('/:movieId', authMiddleware.authenticateToken, updateMovieController);
+router.delete('/:movieId', authMiddleware.authenticateToken, deleteMovieController);
+router.get('/search', searchMovies);
+router.get('/:movieId', getMovieByIdController);
+router.get('/', getMoviesController);
+
 
 export default router;

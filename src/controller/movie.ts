@@ -8,7 +8,7 @@ import { CreateMovieDTO, updatedMovieDTO, DeleteMovieDTO, GetMovieByIdDTO, GetMo
 
 const createMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const movieData = plainToInstance(CreateMovieDTO, req.body);
+        const movieData: CreateMovieDTO = plainToInstance(CreateMovieDTO, req.body);
         const errors = await validate(movieData);
         if (errors.length > 0) {
             res.status(400).json({ errors });
@@ -23,7 +23,7 @@ const createMovieController = async (req: Request, res: Response): Promise<void>
 
 const updateMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const updateData = plainToInstance(updatedMovieDTO, req.body);
+        const updateData: updatedMovieDTO = plainToInstance(updatedMovieDTO, req.body);
         const errors = await validate(updateData);
         if (errors.length > 0) {
             res.status(400).json({ errors });
@@ -38,7 +38,7 @@ const updateMovieController = async (req: Request, res: Response): Promise<void>
 
 const deleteMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const deleteDto = plainToInstance(DeleteMovieDTO, req.body);
+        const deleteDto: DeleteMovieDTO = plainToInstance(DeleteMovieDTO, req.body);
         const errors = await validate(deleteDto);
         if (errors.length > 0) {
             res.status(400).json({ errors });
@@ -53,23 +53,25 @@ const deleteMovieController = async (req: Request, res: Response): Promise<void>
 
 const searchMovies = async (req: Request, res: Response): Promise<void> => {
     try {
-        const filter: Record<string, any> = {};
+        const filter: Record<string, {$regex: string; $options: string}> = {};
         MOVIE_QUERY_KEYS.forEach((key) => {
-            if (req.query[key]) {
-                filter[key] = { $regex: req.query[key], $options: "i" };
+            const queryValue = req.query[key] as string | undefined;
+            if (queryValue) {
+                filter[key] = { $regex: queryValue, $options: "i" };
             }
         });
 
         const movies = await getMovies(filter);
         res.status(200).json({ movies });
     } catch (error) {
+        console.error("Error fetching movies:", error);
         res.status(500).json({ message: MOVIE_MESSAGES.SEARCH_ERROR });
     }
 };
 
 const getMovieByIdController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const movieDto = plainToInstance(GetMovieByIdDTO, { movieId: req.params.movieId });
+        const movieDto: GetMovieByIdDTO = plainToInstance(GetMovieByIdDTO, { movieId: req.params.movieId });
         const errors = await validate(movieDto);
         if (errors.length > 0) {
             res.status(400).json({ errors });
@@ -84,7 +86,7 @@ const getMovieByIdController = async (req: Request, res: Response): Promise<void
 
 const getMoviesController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const queryDto = plainToInstance(GetMoviesDTO, req.query);
+        const queryDto: GetMoviesDTO = plainToInstance(GetMoviesDTO, req.query);
         const errors = await validate(queryDto);
         if (errors.length > 0) {
             res.status(400).json({ errors });

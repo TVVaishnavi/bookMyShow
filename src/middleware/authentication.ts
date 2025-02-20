@@ -38,6 +38,7 @@ const verifyToken = (token: string): JwtPayload | string => {
   try {
     return jwt.verify(token, secretKey);
   } catch (err) {
+    console.log(err)
     throw new Error(AUTH_MESSAGES.INVALID_TOKEN);
   }
 };

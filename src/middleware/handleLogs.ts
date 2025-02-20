@@ -3,24 +3,16 @@ import { v4 as uuid } from "uuid";
 import LogicModel from "../models/log";
 import { DATE_FORMAT, LOG_KEYS } from "../constant"; 
 
-interface LogEventParams {
-  dateTime: string;
-  id: string;
-  method: string;
-  origin: string;
-  path: string;
-}
-
-const logEvent = async (method: string, origin: string, path: string): Promise<any> => {
-  const dateTime: string = format(new Date(), DATE_FORMAT); 
+export const logEvent = async (method: string, origin: string, path: string): Promise<void> => {
+  const dateTime: string = format(new Date(), DATE_FORMAT);
   const newLog = new LogicModel({
     dateTime,
     id: uuid(),
-    [LOG_KEYS.METHOD]: method, 
+    [LOG_KEYS.METHOD]: method,
     [LOG_KEYS.ORIGIN]: origin,
     [LOG_KEYS.PATH]: path,
   });
-  return await newLog.save();
+  await newLog.save();
 };
 
 const logEvents = async (method: string, origin: string, path: string): Promise<void> => {

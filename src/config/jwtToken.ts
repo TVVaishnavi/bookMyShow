@@ -14,8 +14,7 @@ const generateToken = async (user: User): Promise<string> => {
     role: user.role,
   };
 
-  const token = jwt.sign(payload, secretKey, { expiresIn: tokenExpiration });
-  return token;
+  return jwt.sign(payload, secretKey, { expiresIn: tokenExpiration });
 };
 
 export { generateToken, secretKey };

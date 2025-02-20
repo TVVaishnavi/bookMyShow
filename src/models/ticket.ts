@@ -25,3 +25,4 @@ const ticketSchema: Schema = new Schema({
 });
 
 export default mongoose.model<ITicket>('Ticket', ticketSchema);
+export {ITicket}

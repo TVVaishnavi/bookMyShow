@@ -2,8 +2,13 @@ import {Request, Response} from "express";
 import {validate} from "class-validator";
 import { CreateUserDto, LoginUserDto, RefreshTokenDto, GetUserDto} from "../DTO/user.dto"; 
 import {createUser, login, refreshToken, getUsers} from "../service/user";
-import { USER_MESSAGES } from "../constant";
-import { permission } from "process";
+import { USER_MESSAGES} from "../constant";
+
+enum UserRole {
+  Admin = 'admin',
+  User = 'user',
+  Guest = 'guest'
+}
 
 export const createUserController = async(req: Request, res: Response): Promise<Response>=>{
   try {
@@ -50,17 +55,26 @@ export const refreshTokenController = async(req: Request, res: Response): Promis
   }
 }
 
-export const getUsersController = async(req:Request, res: Response): Promise<Response>=>{
+export const getUsersController = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const queryDto = Object.assign(new GetUserDto(), req.query);
+    const queryDto = new GetUserDto();
+    Object.assign(queryDto, req.query);
+
     const errors = await validate(queryDto);
-    if(errors.length>0){
-      return res.status(400).json({errors});
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
     }
-    const users = await getUsers(queryDto.role);
+
+    const role: UserRole | undefined = queryDto.role as UserRole | undefined;
+
+    if (!role || !Object.values(UserRole).includes(role)) {
+      return res.status(400).json({ message: "Role is required and must be a valid UserRole" });
+    }
+
+    const users = await getUsers(role);
     return res.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
-    return res.status(500).json({message: USER_MESSAGES.INTERNAL_ERROR});
+    return res.status(500).json({ message: USER_MESSAGES.INTERNAL_ERROR });
   }
-}
+};

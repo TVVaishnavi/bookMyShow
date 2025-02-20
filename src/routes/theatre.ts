@@ -1,18 +1,15 @@
-import express, { Request, Response, Router } from 'express';
-import theatreController from '../controller/theatre';
+import express from 'express';
+import { createTheatre, deleteTheatre, getAllTheatres, getTheatreById, searchTheatres, updateTheatre } from '../controller/theatre';
 
-const router: Router = express.Router();
+const router = express.Router();
 
-router.post('/', (req: Request, res: Response) => theatreController.createTheatre(req, res));
+router.post('/', async (req, res, next) => await createTheatre(req, res, next));
+router.get('/', async (req, res, next) => await getAllTheatres(req, res, next));
+router.get('/:id', async (req, res, next) => await getTheatreById(req, res, next));
+router.put('/:id', async (req, res, next) => await updateTheatre(req, res, next));
+router.delete('/:id', async (req, res, next) => await deleteTheatre(req, res, next));
+router.get('/search', async (req, res, next) => await searchTheatres(req, res, next));
 
-router.get('/', (req: Request, res: Response) => theatreController.getAllTheatres(req, res));
 
-router.get('/:id', (req: Request, res: Response) => theatreController.getTheatreById(req, res));
-
-router.put('/:id', (req: Request, res: Response) => theatreController.updateTheatre(req, res));
-
-router.delete('/:id', (req: Request, res: Response) => theatreController.deleteTheatre(req, res));
-
-router.get('/search', (req: Request, res: Response) => theatreController.searchTheatres(req, res));
 
 export default router;

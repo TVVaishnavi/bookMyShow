@@ -1,4 +1,4 @@
-import { IsString, IsMongoId, IsNotEmpty, IsArray, IsDate } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsArray, IsDate } from "class-validator";
 
 export class BookTicketDTO {
   @IsMongoId()
@@ -32,3 +32,4 @@ export class CancelTicketDTO {
   @IsNotEmpty()
   userId!: string;
 }
+

@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 export const PORT = process.env.PORT || 3000;
 export const API_ROUTES = {
   USER: "/",
@@ -254,5 +257,9 @@ export const MOCK_CANCELLED_TICKET = {
 export const TICKET_ALREADY_BOOKED_ERROR = 'Ticket is not available or already booked';
 export const TICKET_NOT_FOUND_ERROR = 'Ticket not found or not booked';
 
-
+export enum UserRole {
+  Admin = 'admin',
+  User = 'user',
+  Guest = 'guest'
+}
   

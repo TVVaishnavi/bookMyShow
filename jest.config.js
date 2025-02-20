@@ -1,9 +1,10 @@
-module.exports = {
-    preset: "ts-jest",
-    testEnvironment: "node",
-    transform: {
-      "^.+\\.tsx?$": "ts-jest",
+export default {
+  preset: "ts-jest",
+  testEnvironment: "node",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"], 
+  globals: {
+    "ts-jest": {
+      isolatedModules: true,
     },
-    moduleFileExtensions: ["ts", "tsx", "js"],
+  },
 };
-  
