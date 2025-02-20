@@ -1,19 +1,20 @@
 import Theatre, { ITheatre } from "../models/theatre";
 import { THEATRE, MONGO_OPTIONS, SEARCH_FIELDS } from "../constant"; 
 import { Document, Model, HydratedDocument } from "mongoose";
+import { plainToInstance } from "class-transformer";
+import { validate, Validate } from "class-validator";
+import { CreateTheatreDTO, UpdateTheatreDTO } from "../DTO/theatre.dto";
 
-interface TheatreData {
-  name: string;
-  location: string;
-}
-
-const createTheatre = async (theatreData: TheatreData): Promise<HydratedDocument<ITheatre>> => {
+const createTheatre = async(theatreData: CreateTheatreDTO): Promise<HydratedDocument<ITheatre>>=>{
   try {
-    const theatre = new Theatre(theatreData);
+    const ValidatedData = plainToInstance(CreateTheatreDTO, theatreData);
+    const errors = await validate(ValidatedData);
+    if(errors.length>0) throw new Error("validation failed");
+    const theatre = new Theatre(ValidatedData);
     await theatre.save();
     return theatre;
   } catch (error) {
-    throw new Error(THEATRE.CREATE_ERROR);
+    throw new Error(`${THEATRE.CREATE_ERROR}: ${(error as Error).message}`)
   }
 };
 
@@ -29,11 +30,19 @@ const getTheatreById = async (theatreId: string): Promise<HydratedDocument<IThea
 
 const updateTheatre = async (
   theatreId: string,
-  updateData: Partial<TheatreData>
+  updateData: UpdateTheatreDTO
 ): Promise<HydratedDocument<ITheatre> | null> => {
-  const updatedTheatre = await Theatre.findByIdAndUpdate(theatreId, updateData, { new: true }).exec();
-  if (!updatedTheatre) throw new Error(THEATRE.UPDATE_ERROR);
-  return updatedTheatre;
+  try {
+    const validatedData = plainToInstance(UpdateTheatreDTO, updateData);
+    const errors = await validate(validatedData);
+    if (errors.length > 0) throw new Error("Validation failed");
+
+    const updatedTheatre = await Theatre.findByIdAndUpdate(theatreId, validatedData, { new: true }).exec();
+    if (!updatedTheatre) throw new Error(THEATRE.UPDATE_ERROR);
+    return updatedTheatre;
+  } catch (error) {
+    throw new Error(`${THEATRE.UPDATE_ERROR}: ${(error as Error).message}`);
+  }
 };
 
 const deleteTheatre = async (theatreId: string): Promise<HydratedDocument<ITheatre> | null> => {

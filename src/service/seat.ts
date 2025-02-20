@@ -1,37 +1,45 @@
 import Seat, { ISeat } from '../models/seat';
 import mongoose from 'mongoose';
-import { SEAT_STATUS, SEAT, RESERVATION_EXPIRATION } from '../constant'; 
+import { SEAT_STATUS, SEAT, RESERVATION_EXPIRATION } from '../constant';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator'; 
+import { GetAvailableSeatsDTO, ReserveSeatDTO, BookSeatDTO} from '../DTO/seat.dto';
 
-interface GetAvailableSeatsParams {
-    theatreId: string;
-    movieId: string;
-    showTime: Date;
-}
 
-const getAvailableSeats = async (theatreId: string, movieId: string, showTime: string): Promise<ISeat[]> => {
-    return await Seat.find({ theatreId, movieId, showTime, status: SEAT_STATUS.AVAILABLE });
+const getAvailableSeats = async (dto: GetAvailableSeatsDTO): Promise<ISeat[]>=>{
+    const errors = await validate(dto);
+    if (errors.length>0) throw new Error(JSON.stringify(errors));
+    return await Seat.find({
+        theatreId: dto.theatreId,
+        movieId: dto.movieId,
+        showTime: dto.showTime,
+        status: SEAT_STATUS.AVAILABLE,
+    });
 };
 
-export const reserveSeat = async (seatId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId) => {
-    const seat = await Seat.findById(seatId);
-    if (!seat) throw new Error(SEAT.NOT_FOUND);
+export const reserveSeat = async (dto: ReserveSeatDTO)=>{
+    const errors = await validate(dto);
+    if(errors.length>0) throw new Error(JSON.stringify(errors));
 
+    const seat = await Seat.findById(dto.seatId);
+    if(!seat) throw new Error(SEAT.NOT_FOUND);
     seat.status = SEAT_STATUS.RESERVED;
-    seat.bookedBy = userId;
+    seat.bookedBy = new mongoose.Types.ObjectId(dto.userId);
     await seat.save();
-
     return seat;
 };
 
-const bookSeat = async (seatId: string, userId: mongoose.Types.ObjectId): Promise<ISeat> => {
-    const seat = await Seat.findById(seatId);
-    if (!seat || seat.status !== SEAT_STATUS.RESERVED || String(seat.bookedBy) !== String(userId)) {
+const bookSeat = async (dto: BookSeatDTO): Promise<ISeat>=>{
+    const errors = await validate(dto);
+    if(errors.length>0) throw new Error(JSON.stringify(errors));
+    const seat = await Seat.findById(dto.seatId);
+    if(!seat || seat.status !== SEAT_STATUS.RESERVED || String(seat.bookedBy)!== String(dto.userId)){
         throw new Error(SEAT.UNAUTHORIZED_BOOKING);
     }
     seat.status = SEAT_STATUS.BOOKED;
     await seat.save();
     return seat;
-};
+}
 
 async function releaseExpiredReservation(): Promise<void> {
     try {

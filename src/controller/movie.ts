@@ -1,10 +1,20 @@
 import { Request, Response } from "express";
 import { createMovie, updateMovie, deleteMovie, getMovieById, getMovies } from "../service/movie";
 import { MOVIE_MESSAGES, MOVIE_QUERY_KEYS } from "../constant";
+import { validate } from "class-validator";
+import { plainToInstance } from "class-transformer";
+import { CreateMovieDTO, updatedMovieDTO, DeleteMovieDTO, GetMovieByIdDTO, GetMoviesDTO } from "../DTO/movie.dto";
+
 
 const createMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const newMovie = await createMovie(req.body);
+        const movieData = plainToInstance(CreateMovieDTO, req.body);
+        const errors = await validate(movieData);
+        if (errors.length > 0) {
+            res.status(400).json({ errors });
+            return;
+        }
+        const newMovie = await createMovie(movieData);
         res.status(201).json({ message: MOVIE_MESSAGES.CREATED, movie: newMovie });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -13,7 +23,13 @@ const createMovieController = async (req: Request, res: Response): Promise<void>
 
 const updateMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const updatedMovie = await updateMovie(req.params.movieId, req.body);
+        const updateData = plainToInstance(updatedMovieDTO, req.body);
+        const errors = await validate(updateData);
+        if (errors.length > 0) {
+            res.status(400).json({ errors });
+            return;
+        }
+        const updatedMovie = await updateMovie(req.params.movieId, updateData);
         res.status(200).json({ message: MOVIE_MESSAGES.UPDATED, movie: updatedMovie });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -22,7 +38,13 @@ const updateMovieController = async (req: Request, res: Response): Promise<void>
 
 const deleteMovieController = async (req: Request, res: Response): Promise<void> => {
     try {
-        await deleteMovie(req.params.movieId);
+        const deleteDto = plainToInstance(DeleteMovieDTO, req.body);
+        const errors = await validate(deleteDto);
+        if (errors.length > 0) {
+            res.status(400).json({ errors });
+            return;
+        }
+        await deleteMovie(deleteDto.movieId);
         res.status(200).json({ message: MOVIE_MESSAGES.DELETED });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -47,7 +69,13 @@ const searchMovies = async (req: Request, res: Response): Promise<void> => {
 
 const getMovieByIdController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const movie = await getMovieById(req.params.movieId);
+        const movieDto = plainToInstance(GetMovieByIdDTO, { movieId: req.params.movieId });
+        const errors = await validate(movieDto);
+        if (errors.length > 0) {
+            res.status(400).json({ errors });
+            return;
+        }
+        const movie = await getMovieById(movieDto.movieId);
         res.status(200).json({ movie });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -56,7 +84,14 @@ const getMovieByIdController = async (req: Request, res: Response): Promise<void
 
 const getMoviesController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const movies = await getMovies(req.query);
+        const queryDto = plainToInstance(GetMoviesDTO, req.query);
+        const errors = await validate(queryDto);
+        if (errors.length > 0) {
+            res.status(400).json({ errors });
+            return;
+        }
+
+        const movies = await getMovies(queryDto);
         res.status(200).json({ movies });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });

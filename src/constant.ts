@@ -127,33 +127,37 @@ export const THEATRE = {
 export const MONGO_OPTIONS = { new: true };
 export const SEARCH_FIELDS = ["name", "location"];
   
-export const PRICE = 200;
-
-export const AVAILABILITY = {
-    OPEN: 'Open',
-    TAKEN: 'Taken',
-};
+export enum TICKET {
+    BOOKED = "Booked",
+    CANCELED = "Cancelled",
+    CONFIRMED = "CONFIRMED",
+  }
   
-export const PAYMENT = {
-    DUE: 'Due',
-    PAID: 'Paid',
-    REFUND: 'Refund Initiated',
-};
+  export enum PAYMENT {
+    PAID = "Paid",
+    REFUND_INITIATED = "Refund Initiated",
+    PENDING = "Pending",
+    REFUND = "Refund",
+    DUE = "DUE", // Add this to match your usage
+  }
   
-export const TICKET = {
-    CONFIRMED: 'Booked',
-    CANCELED: 'Cancelled',
-};
+  // Make sure your constants match these enums
+  export const ERROR = {
+    NOT_ENOUGH: "Not enough seats available",
+    NOT_FOUND: "Ticket not found",
+    ALREADY_CANCELED: "Ticket already canceled",
+  };
   
-export const ERROR = {
-    NOT_ENOUGH: 'Not enough seats available',
-    NOT_FOUND: 'Ticket not found',
-    ALREADY_CANCELED: 'Ticket already canceled',
-};
+  export const SUCCESS = {
+    CANCELED: "Ticket successfully canceled",
+  };
   
-export const SUCCESS = {
-    CANCELED: 'Ticket successfully canceled',
-};
+  export const PRICE = 100; // Example price
+  export const AVAILABILITY = {
+    OPEN: "Open",
+    TAKEN: "Taken",
+  };
+  
   
 export const SALT_ROUNDS = 10;
 

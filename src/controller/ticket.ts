@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { bookTicket as bookTicketService, cancelTicket as cancelTicketService } from "../service/ticket";
 import { TICKET_MESSAGES } from "../constant";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { BookTicketDTO, CancelTicketDTO } from "../DTO/ticket.dto";
 
 interface CustomRequest extends Request {
   user?: {
@@ -8,37 +11,41 @@ interface CustomRequest extends Request {
   };
 }
 
-interface TicketParams {
-  ticketId: string;
-}
-
-export const bookTicket = async (req: CustomRequest, res: Response, next: unknown): Promise<void> => {
+export const bookTicket = async (req: CustomRequest, res: Response): Promise<Response> => {
   try {
-    const { theatreId, movieId, showTime, seatIds }: { theatreId: string; movieId: string; showTime: Date; seatIds: string[] } = req.body;
-    
-    if (req.user) {
-      const ticket = await bookTicketService(req.user.id, theatreId, movieId, showTime, seatIds);
-      res.status(201).json({ message: TICKET_MESSAGES.BOOKED });
-    } else {
-      res.status(400).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
+    if (!req.user) {
+      return res.status(400).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
     }
+
+    const dto = plainToInstance(BookTicketDTO, req.body);
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+    await bookTicketService(req.user.id, dto.theatreId, dto.movieId, dto.showTime, dto.seatIds);
+    return res.status(201).json({ message: TICKET_MESSAGES.BOOKED });
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 };
 
-export const cancelTicket = async (req: CustomRequest & { params: TicketParams }, res: Response, next: unknown): Promise<void> => {
+export const cancelTicket = async (req: CustomRequest, res: Response): Promise<Response> => {
   try {
-    const { ticketId } = req.params;
-    
-    if (req.user) {
-      const response = await cancelTicketService(ticketId, req.user.id);
-      res.status(200).json(response);
-    } else {
-      res.status(400).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
+    if (!req.user) {
+      return res.status(400).json({ message: TICKET_MESSAGES.NOT_AUTHENTICATED });
     }
+
+    const dto = plainToInstance(CancelTicketDTO, req.params);
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+    const response = await cancelTicketService(dto.ticketId, req.user.id);
+    return res.status(200).json(response);
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
