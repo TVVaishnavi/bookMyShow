@@ -27,13 +27,11 @@ const bookSeat = async(seatId, userId)=>{
 
 async function releaseExpiredReservation() {
     try {
-        console.log("Releaseing expired reservations..")
         const expirationTime = new Date(Date.now()-5*60*1000)
         const result = await Seat. updateMany(
             { status: 'Reserved', reservedAt: { $lt: expirationTime } },
             { status: 'Available', bookedBy: null, reservedAt: null }
         )
-        console.log(`Released ${result.modifiedCount} expired reservations.`)
     } catch (error) {
         console.error("Error in releasing reservations:", error)
     }

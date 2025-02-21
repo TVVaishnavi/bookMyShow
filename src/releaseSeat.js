@@ -4,7 +4,6 @@ const startSeatReleaseJob = ()=>{
     setInterval(async()=>{
         try {
             await seatService.releaseExpiredReservation()
-            console.log('Expired reservation released')
         } catch (error) {
             console.error('Error releasing expired reservations:', error)
         }
