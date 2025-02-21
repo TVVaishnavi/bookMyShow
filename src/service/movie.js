@@ -29,7 +29,7 @@ const deleteMovie = async(movieId)=>{
         if(!movies) throw new Error("Movie not found")
         return movies
     } catch (error) {
-        throw new Error("Error deleting movie");
+        throw new Error("Error deleting movie")
     }
 }
 
@@ -45,10 +45,11 @@ const getMovieById = async (movieId) => {
 
 const getMovies = async (query) => {
     try {
-      const movies = await movie.find(filter)
-      return movies
+        const movies = await movie.find(query) 
+        return movies
     } catch (error) {
-      throw new Error("Error fetching movies")
+        console.error("Error fetching movies:", error)
+        throw new Error("Error fetching movies")
     }
 }
 module.exports = {createMovie, updateMovie, deleteMovie, getMovieById, getMovies}

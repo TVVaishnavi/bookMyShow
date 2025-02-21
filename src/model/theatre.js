@@ -8,10 +8,11 @@ const theatreSchema = new mongoose.Schema(
       trim: true,
     },
     location: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      zipcode: { type: String, required: true }
+    },    
     seatingCapacity: {
       type: Number,
       required: true,
@@ -19,7 +20,7 @@ const theatreSchema = new mongoose.Schema(
     },
     movies: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Movie', 
       },
     ],

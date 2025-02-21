@@ -7,6 +7,7 @@ const userRouter = require("./routes/user")
 const movieRoute = require("../src/routes/movie")
 const theatreRoutes = require('./routes/theatre')
 const startSeatReleaseJob = require("./releaseSeat")
+const createAdminAccount = require("../src/admin")
 const PORT = process.env.PORT||3800
 
 app.get("/",(req,res)=>{
@@ -18,11 +19,11 @@ if(require.main === module){
         console.log(`server is running on port ${PORT}`)
     })
 }
-//use imported router
 app.use("/", userRouter)
 app.use("/api", movieRoute)
 app.use("/api/theatres", theatreRoutes)
 
 startSeatReleaseJob()
+createAdminAccount()
 
 module.exports = app
