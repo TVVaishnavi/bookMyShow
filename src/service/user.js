@@ -5,6 +5,11 @@ const jwtToken = require("../config/jwtToken");
 
 const getUsers = async () => await User.find({});
 
+const getUserByEmail = async (email) => {
+  return await User.findOne({ email });
+};
+
+
 const createUser = async ({ name, email, password }) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   return await new User({ name, email, password: hashedPassword }).save();
@@ -38,4 +43,4 @@ const refreshToken = async (oldToken) => {
   }
 };
 
-module.exports = { getUsers, createUser, login, refreshToken };
+module.exports = { getUsers, getUserByEmail, createUser, login, refreshToken };
