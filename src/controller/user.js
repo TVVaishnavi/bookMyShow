@@ -2,6 +2,7 @@ const { userService, authService} = require("../service/user");
 
 const createUser = async (req, res) => {
     try {
+        console.log("Incoming request body:", req.body);
         const { email, ...userData } = req.body;
         const existingUser = await userService.getUserByEmail(email);
         if (existingUser) {
