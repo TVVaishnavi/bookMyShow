@@ -5,7 +5,7 @@ require('dotenv').config();
 const mongoUri = process.env.MONGODB_URI;
 
 mongoose.connect(mongoUri, {
-    tls: true,  
+    tls: true, 
     serverSelectionTimeoutMS: 5000,
 })
 .then(() => {
