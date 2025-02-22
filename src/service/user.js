@@ -1,6 +1,5 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
-const { verifyToken } = require("../middleware/authentication");
 const jwtToken = require("../config/jwtToken");
 
 const getUsers = async () => await User.find({});

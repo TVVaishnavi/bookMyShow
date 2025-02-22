@@ -24,7 +24,7 @@ const logEvents = async (method, origin, path) => {
     }
 }
 
-const logger = (req, res, next)=>{
+const logger = (req, next)=>{
     logEvents(req.method, req.headers.origin, req.path)
     console.log(`${req.method} ${req.path}`)
     next()

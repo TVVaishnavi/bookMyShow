@@ -32,6 +32,7 @@ async function releaseExpiredReservation() {
             { status: 'Reserved', reservedAt: { $lt: expirationTime } },
             { status: 'Available', bookedBy: null, reservedAt: null }
         )
+        return result
     } catch (error) {
         console.error("Error in releasing reservations:", error)
     }
