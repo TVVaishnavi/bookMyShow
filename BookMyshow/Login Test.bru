@@ -1,0 +1,19 @@
+meta {
+  name: Login Test
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3800/user/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name":"Ragavan",
+    "email":"ragavan@gmail.com",
+    "password":"saravanan"
+  }
+}

@@ -56,7 +56,7 @@ const deleteTheatre = async(req, res)=>{
 
 const searchTheatres = async(req, res)=>{
     try {
-        const searchQuery = req.query.query
+        const searchQuery = req.body.name || req.query.query
         const theatres = await theatreService.searchTheatres(searchQuery)
         res.status(200).json({theatres})
     } catch (error) {

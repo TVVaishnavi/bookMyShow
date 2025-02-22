@@ -1,0 +1,21 @@
+meta {
+  name: theatrebytitle
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:3800/api/theatres/:Grand Cinema
+  body: json
+  auth: none
+}
+
+params:path {
+  Grand%20Cinema: 
+}
+
+body:json {
+  {
+    "name":"Grand Cinema"
+  }
+}

@@ -65,12 +65,16 @@ const getMovieByIdController = async (req, res) => {
 }
 
 const getMoviesController = async (req, res) => {
-    const query = req.query
-    try {
-      const movies = await getMovies(query)
-      return res.status(200).json({ movies })
-    } catch (error) {
-      return res.status(500).json({ message: error.message })
-    }
-}
+  const query = req.query;
+  console.log("Received Query:", query); 
+  try {
+      const movies = await getMovies(query);
+      console.log("Fetched Movies:", movies); 
+      return res.status(200).json({ movies });
+  } catch (error) {
+      console.error("Controller Error:", error.message);
+      return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {createMovieController, updateMovieController, deleteMovieController, getMovieByIdController, getMoviesController, searchMovies}

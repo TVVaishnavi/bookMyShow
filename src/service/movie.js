@@ -1,8 +1,8 @@
-const movie = require('../model/movie')
+const Movie = require('../model/movie')
 
 const createMovie = async(movieData)=>{
     try{
-        const show = new movie(movieData)
+        const show = new Movie(movieData)
         await show.save()
         return show
     }catch(error){
@@ -12,12 +12,12 @@ const createMovie = async(movieData)=>{
 
 const updateMovie = async(movieId, updatedData)=>{
     try {
-        const movies = await movie.findByIdAndUpdate(movieId, updatedData,{
+        const movie = await Movie.findByIdAndUpdate(movieId, updatedData,{
             new: true,
             runValidators: true,
         })
-        if(!movies) throw new Error("movie not found")
-        return movies
+        if(!movie) throw new Error("movie not found")
+        return movie
     } catch (error) {
         throw new Error("Error updating movie")
     }
@@ -25,9 +25,9 @@ const updateMovie = async(movieId, updatedData)=>{
 
 const deleteMovie = async(movieId)=>{
     try {
-        const movies = await movie.findByIdAndDelete(movieId)
-        if(!movies) throw new Error("Movie not found")
-        return movies
+        const movie = await Movie.findByIdAndDelete(movieId)
+        if(!movie) throw new Error("Movie not found")
+        return movie
     } catch (error) {
         throw new Error("Error deleting movie")
     }
@@ -35,9 +35,9 @@ const deleteMovie = async(movieId)=>{
 
 const getMovieById = async (movieId) => {
     try {
-      const movies = await movie.findById(movieId)
-      if (!movies) throw new Error("Movie not found")
-      return movies
+      const movie = await Movie.findById(new mongoose.Types.ObjectId(movieId))
+      if (!movie) throw new Error("Movie not found")
+      return movie
     } catch (error) {
       throw new Error("Error fetching movie")
     }
@@ -45,11 +45,19 @@ const getMovieById = async (movieId) => {
 
 const getMovies = async (query) => {
     try {
-        const movies = await movie.find(query) 
-        return movies
+        const searchQuery ={}
+        if(query.title){
+            searchQuery.title = {$regex: query.title, $options: "i"}
+        }
+        const movie = await Movie.find(searchQuery)
+        console.log("movie found:", movie)
+        if(movie.length === 0){
+            throw new Error("no movies found with the given criteria")
+        } 
+        return movie
     } catch (error) {
         console.error("Error fetching movies:", error)
-        throw new Error("Error fetching movies")
+        throw new Error("Error fetching movie:", +error.message)
     }
 }
 module.exports = {createMovie, updateMovie, deleteMovie, getMovieById, getMovies}

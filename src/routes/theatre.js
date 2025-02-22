@@ -6,12 +6,12 @@ router.post('/', theatreController.createTheatre);
 
 router.get('/', theatreController.getAllTheatres);
 
-router.get('/:id', theatreController.getTheatreById);
+router.get('/:title', theatreController.getTheatreById);
 
-router.put('/:id', theatreController.updateTheatre);
+router.put('/:title', theatreController.updateTheatre);
 
-router.delete('/:id', theatreController.deleteTheatre);
+router.delete('/:title', theatreController.deleteTheatre);
 
-router.get('/search', theatreController.searchTheatres);
+router.post('/search', theatreController.searchTheatres);
 
 module.exports = router;

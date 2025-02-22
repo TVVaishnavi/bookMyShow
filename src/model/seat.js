@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const seatSchema = new mongoose.Schema({
-    theatreId: {type: mongoose.Schema.Types.ObjectId, ref: 'Theatre', required: true},
-    movieId: {type: mongoose.Schema.Types.ObjectId, ref: 'Movie', required: true},
+    name: {type: String, required: true},
+    title: {type: String, required: true},
     showTime: {type: Date, required: true},
     seatNumber: {type: String, required: true},
     status: {type: String, enum: ['Available', 'Reserved', 'Booked'], default: 'Available'},

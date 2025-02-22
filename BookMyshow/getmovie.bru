@@ -1,0 +1,25 @@
+meta {
+  name: getmovie
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:3800/api/movies/:67b399c06f3d8ebf201c4531
+  body: json
+  auth: bearer
+}
+
+params:path {
+  67b399c06f3d8ebf201c4531: 
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Yjk2Nzk0ZTgwY2U1YzQwM2Q0ZTUyZCIsImVtYWlsIjoicmFnYXZhbkBnbWFpbC5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3NDAyMDQwMDgsImV4cCI6MTc0MDIwNzYwOH0.teamskI8yFu_56xRJ99PttSs8aQ0Z-1eHnYPkS_BAFA
+}
+
+body:json {
+  {
+    "name":"Inception"
+  }
+}
