@@ -45,11 +45,7 @@ const getMovieById = async (movieId) => {
 
 const getMovies = async (query) => {
     try {
-        const searchQuery ={}
-        if(query.title){
-            searchQuery.title = {$regex: query.title, $options: "i"}
-        }
-        const movie = await Movie.find(searchQuery)
+        const movie = await Movie.find(query)
         console.log("movie found:", movie)
         if(movie.length === 0){
             throw new Error("no movies found with the given criteria")

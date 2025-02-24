@@ -65,7 +65,7 @@ const getMovieByIdController = async (req, res) => {
 }
 
 const getMoviesController = async (req, res) => {
-  const query = req.query;
+  const query = req.body;
   console.log("Received Query:", query); 
   try {
       const movies = await getMovies(query);

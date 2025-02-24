@@ -7,10 +7,14 @@ const movieSchema = new Schema({
   genre: { type: String, required: true },
   releaseDate: { type: Date, required: true },
   director: { type: String, required: true },
-  cast: [{ type: String }], 
+  cast: [{ type: Array }], 
   rating: { type: Number, min: 0, max: 10 }, 
   duration: { type: Number, required: true }, 
   language: { type: String, required: true },
+  showTime: {type: Array, required: true },
+  theatre: {type:Array, required: true},
+  availableSeat: {type: String, required: true},
+  BookedSeat: {type: String, required: true},
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -1,36 +1,36 @@
-const Ticket = require("../model/ticket")
-const Seat = require("../model/seat")
+const Movie = require("../model/movie")
+const ticket = require("../model/ticket")
 
-const bookTicket = async(userId, theatreId, movieId, showTime, seatIds)=>{
-    const seats = await Seat.find({_id: {$in: seatIds}, status: 'Available'})
-    if(seats.length !== seatIds.length){
-        throw new Error("Some seats are already booked or unavailable")
+const bookMovieTicket = async (user, movie, seat,totalPrice) => {
+    try {
+        const existedMovie = await Movie.find(movie)
+        if (!existedMovie) {
+            throw new Error("movie is not found")
+        } else {
+            // const updateSeat = await seat.updateSeat()
+            const data={ user: user, movie: existedMovie, seats: seat ,totalPrice:totalPrice}
+            const bookticket = new ticket(data)
+            bookticket.save()
+            return data
+        }
+    } catch (error) {
+        return error
     }
-    const totalPrice = seats.length*200
-    await Seat.updateMany({_id: {$in: seatIds}}, {status: 'Booked', bookedBy: userId})
-    const ticket = await Ticket.create({
-        userId,
-        theatreId,
-        movieId,
-        showTime,
-        seats: seatIds,
-        totalPrice,
-        paymentStatus: 'Pending',
-        status: 'Booked',
-    })
-    return ticket 
 }
 
-const cancelTicket = async(ticketId, userId)=>{
-    const ticket = await Ticket.findOne({_id: ticketId, userId})
-    if(!ticket) throw new Error('Ticket not found or you do not have permission')
-    if(ticket.status === 'cancelled') throw new Error('Ticket is already cancelled')
-    
-    ticket.status = 'Cancelled'
-    ticket.paymentStatus = 'Refund Initiated'
-    await ticket.save()
-
-    await Seat.updateMany({_id: {$in: ticket.seats}}, {status: 'Available', bookedBy: null})
-    return {message: 'Ticket cancelled successfully', ticket}
+const cancelMovieTicket=async(id)=>{
+    try {
+        const findticket=await ticket.find({_id:id})
+        if(!findticket){
+            throw new Error("Ticket Not Found")
+        }
+        else{
+           const deleteticket=await ticket.deleteOne({_id:id})
+           return {message:"Ticket Canceled Successfully",data:deleteticket}
+        }
+    } catch (error) {
+        return error
+    }
 }
-module.exports = {bookTicket, cancelTicket }
+
+module.exports={bookMovieTicket,cancelMovieTicket}

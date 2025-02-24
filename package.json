@@ -30,7 +30,9 @@
     "mongoose": "^8.10.1",
     "mongoose-mock": "^0.4.0",
     "stable": "^0.1.8",
-    "uuid": "^11.0.5"
+    "uuid": "^11.0.5",
+    "websocket": "^1.0.35",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

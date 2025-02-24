@@ -1,0 +1,31 @@
+meta {
+  name: create movie
+  type: http
+  seq: 13
+}
+
+post {
+  url: http://localhost:3800/api/movies/create
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "varisu",
+    "description": "A man with a mysterious past is forced to confront his violent history when danger threatens his loved ones.",
+    "genre": "business, family",
+    "releaseDate": "2023-10-19T00:00:00Z",
+    "director": "Lokesh Kanagaraj",
+    "cast": ["Vijay", "Trisha Krishnan", "Sanjay Dutt", "Arjun Sarja"],
+    "rating": 8.5,
+    "duration": 164,
+    "language": "Tamil",
+    "showTime": ["11:00 AM", "3:00 PM", "7:00 PM", "10:30 PM"],
+    "theatre": "PVR Cinemas",
+    "availableSeat":50,
+    "BookedSeat":0,
+    "createdAt": "2025-02-23T12:00:00Z"
+  }
+  
+}

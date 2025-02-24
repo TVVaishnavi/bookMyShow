@@ -4,16 +4,18 @@ meta {
   seq: 5
 }
 
-get {
-  url: http://localhost:3800/api/movies/get?title=Sura
+post {
+  url: http://localhost:3800/api/movies/get
   body: json
   auth: bearer
 }
 
-params:query {
-  title: Sura
-}
-
 auth:bearer {
   token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Yjk2Nzk0ZTgwY2U1YzQwM2Q0ZTUyZCIsImVtYWlsIjoicmFnYXZhbkBnbWFpbC5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3NDAyMDQwMDgsImV4cCI6MTc0MDIwNzYwOH0.teamskI8yFu_56xRJ99PttSs8aQ0Z-1eHnYPkS_BAFA
+}
+
+body:json {
+  {
+    "title":"Leo"
+  }
 }

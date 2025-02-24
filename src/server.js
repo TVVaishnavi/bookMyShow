@@ -5,8 +5,7 @@ require("../src/config/database")
 app.use(express.json())
 const userRouter = require("./routes/user")
 const movieRoute = require("../src/routes/movie")
-const theatreRoutes = require('./routes/theatre')
-const startSeatReleaseJob = require("./releaseSeat")
+const ticketRoute = require("./routes/ticket")
 const createAdminAccount = require("../src/admin")
 const PORT = process.env.PORT||3800
 
@@ -20,10 +19,7 @@ if(require.main === module){
     })
 }
 app.use("/", userRouter)
-app.use("/api", movieRoute)
-app.use("/api/theatres", theatreRoutes)
-
-startSeatReleaseJob()
+app.use("/api", movieRoute,ticketRoute)
 createAdminAccount()
 
 module.exports = app

@@ -11,6 +11,6 @@ router.delete("/movies/:movieId", deleteMovieController)
 
 router.get("/movies/:movieId", getMovieByIdController)
 
-router.get("/movies/get", getMoviesController)
+router.post("/movies/get", getMoviesController)
 
 module.exports = router

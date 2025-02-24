@@ -4,8 +4,15 @@ meta {
   seq: 10
 }
 
-get {
+post {
   url: http://localhost:3800/admin/login
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "email":"admin1@gmail.com",
+    "password":"admin"
+  }
 }
