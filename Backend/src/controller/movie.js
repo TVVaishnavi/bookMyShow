@@ -1,19 +1,27 @@
-const {updateMovie, deleteMovie, getMovieById,getMovies} = require("../service/movie")
+const {updateMovie, deleteMovie, getMovieByName,getMovies} = require("../service/movie")
 const Movie = require("../model/movie")
 
 const createMovieController = async (req, res) => {
-  try {
-      const movie = new Movie(req.body);
-      await movie.save();
-
-      console.log("Movie saved:", movie);
-      res.status(201).json({ message: "Movie created successfully", movie });
-  } catch (error) {
-      console.error("Error creating movie:", error.message);
-      res.status(500).json({ message: "Error creating movie", error: error.message });
-  }
+    try {
+        const modata = req.body;
+        
+        const availableSeats = {
+            premium: { rowA: [1,2,3,4,5,6,7,8,9,10], rowB: [1,2,3,4,5,6,7,8,9,10] },
+            regular: { rowC: [1,2,3,4,5,6,7,8,9,10], rowD: [1,2,3,4,5,6,7,8,9,10], rowE: [1,2,3,4,5,6,7,8,9,10] },
+            recliner: { rowF: [1,2,3,4,5] }
+        };
+  
+        const movie = new Movie(modata);
+        await movie.save();
+  
+        console.log("Movie saved:", movie);
+        res.status(201).json({ message: "Movie created successfully", movie });
+    } catch (error) {
+        console.error("Error creating movie:", error.message);
+        res.status(500).json({ message: "Error creating movie", error: error.message });
+    }
 };
-
+  
 const updateMovieController = async(req,res)=>{
     const movieId = req.params.movieId
     const updateData = req.body
@@ -54,15 +62,23 @@ const searchMovies = async (req, res) => {
   }
 }
 
-const getMovieByIdController = async (req, res) => {
-    const movieId = req.params.movieId
-    try {
-      const movie = await getMovieById(movieId)
-      return res.status(200).json({ movie })
-    } catch (error) {
-      return res.status(500).json({ message: error.message })
-    }
-}
+const getMovieByNameController = async (req, res) => {
+  const movieName = req.params['moviename'];
+  console.log("Received request to find movie:", movieName); // ✅ Debugging log
+
+  if (!movieName || movieName.includes(":")) {
+      return res.status(400).json({ message: "Invalid movie name" });
+  }
+
+  try {
+      const movie = await getMovieByName(movieName);
+      return res.status(200).json({ movie });
+  } catch (error) {
+      return res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 const getMoviesController = async (req, res) => {
   const query = req.body;
@@ -77,4 +93,4 @@ const getMoviesController = async (req, res) => {
   }
 };
 
-module.exports = {createMovieController, updateMovieController, deleteMovieController, getMovieByIdController, getMoviesController, searchMovies}
+module.exports = {createMovieController, updateMovieController, deleteMovieController, getMovieByNameController, getMoviesController, searchMovies}

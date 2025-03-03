@@ -33,15 +33,30 @@ const deleteMovie = async(movieId)=>{
     }
 }
 
-const getMovieById = async (movieId) => {
+const getMovieByName = async (movieName) => {
     try {
-      const movie = await Movie.findById(new mongoose.Types.ObjectId(movieId))
-      if (!movie) throw new Error("Movie not found")
-      return movie
+        console.log("Searching for movie with name:", movieName); // ✅ Debugging log
+
+        const movie = await Movie.findOne({
+            title: { $regex: new RegExp("^" + movieName + "$", "i") } // ✅ Case-insensitive search
+        });
+
+        console.log("MongoDB Query Result:", movie); // ✅ Check what MongoDB returns
+
+        if (!movie) throw new Error("Movie not found");
+        movie.availableSeats = movie.availableSeats || { premium: {}, regular: {}, recliner: {} };
+        movie.bookedSeats = movie.bookedSeats || [];
+        
+        if(typeof(movie)===Array) return movie;
+        else return [movie]
+        
     } catch (error) {
-      throw new Error("Error fetching movie")
+        console.error("Error fetching movie:", error.message);
+        throw new Error("Error fetching movie");
     }
-}
+};
+
+
 
 const getMovies = async (query) => {
     try {
@@ -56,4 +71,4 @@ const getMovies = async (query) => {
         throw new Error("Error fetching movie:", +error.message)
     }
 }
-module.exports = {createMovie, updateMovie, deleteMovie, getMovieById, getMovies}
+module.exports = {createMovie, updateMovie, deleteMovie, getMovieByName, getMovies}

@@ -6,6 +6,8 @@ app.use(express.json())
 const userRouter = require("./routes/user")
 const movieRoute = require("../src/routes/movie")
 const ticketRoute = require("./routes/ticket")
+const theatreRoute = require("./routes/theatre")
+const selectRoute = require("./routes/selectedtheatre")
 const createAdminAccount = require("../src/admin")
 const PORT = process.env.PORT||3800
 
@@ -19,7 +21,7 @@ if(require.main === module){
     })
 }
 app.use("/", userRouter)
-app.use("/api", movieRoute,ticketRoute)
+app.use("/api", movieRoute,ticketRoute,theatreRoute,selectRoute)
 createAdminAccount()
 
 module.exports = app
